@@ -14,8 +14,8 @@
 <script>
 window.MathJax = {
   tex: {
-    inlineMath: [['$', '$'], ['\\(', '\\)']],
-    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+    inlineMath: [['$', '$']],
+    displayMath: [['$$', '$$']],
     processEscapes: true,
     tags: 'none'
   },
@@ -1081,12 +1081,17 @@ async function askJSON(prompt, opts = {}) {
    ============================================================ */
 const SYSTEM_CORE = `Eres PRAXIS, un orquestador cognitivo experto en matemáticas avanzadas. Tu misión: convertir UN ejercicio matemático en una investigación profunda y rigurosa.
 
-REGLAS ABSOLUTAS:
+REGLAS ABSOLUTAS DE FORMATO Y MATEMÁTICAS:
 - Responde ÚNICAMENTE con un objeto JSON válido. Sin texto fuera del JSON. Sin cercas \`\`\`.
-- Todo el LaTeX dentro de cadenas JSON DEBE estar doblemente escapado: cada barra invertida como "\\\\" (ej. integral -> "\\\\int", fracción -> "\\\\frac{a}{b}").
-- Usa LaTeX estándar (MathJax v3). Para bloques usa "$$...$$" dentro de "html"/"latex"; para inline "\\(...\\)".
-- No inventes referencias: si no conoces una fuente concreta, describe el recurso genérico sin fabricar DOI/ISBN falsos.
-- Explica TODA la notación, lenguaje técnico y tecnicismos usados.`;
+- SINTAXIS MATEMÁTICA ESTÁNDAR Y ESTRICTA:
+  * Para fórmulas en línea (inline), usa SIEMPRE $...$ (ejemplo: $f(x) = x^2$ o $A \\in M_2(\\mathbb{R})$).
+  * Para fórmulas en bloque (display), usa SIEMPRE $$...$$ (ejemplo: $$X'(t) = AX(t)$$).
+  * NUNCA uses \\( ni \\) para fórmulas en línea.
+  * NUNCA uses \\[ ni \\] para fórmulas en bloque.
+  * Escribe el LaTeX estándar limpio: \\frac{a}{b}, \\int, \\sum, \\begin{pmatrix}...\\end{pmatrix}.
+  * NUNCA agregues barras de escape huérfanas en el texto (como "\\ " o saltos de línea literales rotos).
+- No inventes referencias falsas.
+- Explica toda la notación y tecnicismos con máximo rigor.`;
 
 function audienceInstr(a) {
   return {
@@ -1245,30 +1250,55 @@ Devuelve JSON:
 function promptReport(plan, resolver, theory, figures, research, userPrompt) {
   return `${SYSTEM_CORE}
 
-FASE 6 — INFORME FINAL. Integra todo en un documento HTML coherente (fragmento <body>, sin <html>/<head>/<body>). Usa clases:
-<section class="blk">, <h3 class="sec"><span class="num">§</span>Título</h3>, <div class="prose">, <div class="callout co-def">, <div class="steps">, <div class="tbl-wrap">.
+FASE 6 — AGENTE ESPECIALISTA EN FORMATO HTML / MATHJAX.
+Tu misión: Tomar la solución matemática completa y estructurarla en un informe HTML semántico impecable listo para MathJax v3.
 
-DATOS:
+REGLAS ESTRICTAS DE FORMATO:
+- Delimitadores matemáticos: Usa exclusivamente $...$ para matemáticas en línea y $$...$$ para display math en bloque. NUNCA uses \\( ni \\) ni \\[ ni \\].
+- No agregues barras invertidas huérfanas en el texto ni repeticiones.
+- Estructura con clases semánticas de Praxis:
+  <section class="blk">
+    <h3 class="sec"><span class="num">§</span>Título</h3>
+    <div class="prose"><p>...</p></div>
+    <div class="steps"><div class="step"><div class="idx"></div><div class="body"><div class="ttl">...</div><div class="prose">...</div></div></div></div>
+    <div class="callout co-def"><div class="lab">Definición</div>...</div>
+    <div class="callout co-thm"><div class="lab">Teorema</div>...</div>
+    <div class="tbl-wrap"><table>...</table></div>
+  </section>
+
+DATOS A ENSAMBLAR:
 Plan: ${JSON.stringify(plan)}
 Resolución: ${JSON.stringify(resolver)}
 Teoría: ${JSON.stringify(theory)}
 Investigación: ${JSON.stringify(research)}
 
 Devuelve JSON:
-{"html":"<section class=\"blk\">...todo el informe...</section>", "titulo_final":"título pulido"}`;
+{"html":"<section class=\"blk\">...todo el informe ensamblado...</section>", "titulo_final":"título descriptivo y pulido"}`;
 }
 
 function promptMd(plan, resolver, theory, figures, research) {
   return `${SYSTEM_CORE}
 
-FASE 7 — MARKDOWN EDITABLE. Genera un documento Markdown completo listo para Word (ecuaciones editables con $$ display e \\( inline).
+FASE 7 — AGENTE ESPECIALISTA EN FORMATO MARKDOWN / WORD / PANDOC.
+Tu misión: Generar un documento Markdown canónico, prístino y estrictamente estructurado para ser procesado por Word o Pandoc.
 
+REGLAS ESTRICTAS DE SINTAXIS:
+1. ECUACIONES EN BLOQUE (Display): Escribe SIEMPRE $$ en su propia línea, la fórmula en las líneas siguientes, y $$ de cierre en su propia línea:
+   $$
+   X(t) = \\begin{pmatrix} \\cos t & \\sin t \\\\ -\\sin t & \\cos t \\end{pmatrix} X_0
+   $$
+2. ECUACIONES EN LÍNEA (Inline): Usa SIEMPRE $formula$ (ejemplo: $x^2 + y^2 = R^2$ o $A \\in M_2(\\mathbb{R})$).
+   NUNCA uses \\( ni \\) ni \\[ ni \\].
+3. Estructura: # Título, ## Secciones numeradas (1. Estrategia, 2. Marco Teórico, 3. Investigaciones, 4. Bibliografía), * Viñetas.
+4. NO dupliques texto, ni delimitadores, ni agregues barras invertidas huérfanas en el texto.
+
+DATOS:
 Plan: ${JSON.stringify({ titulo: plan.titulo, ramas: plan.ramas })}
 Resolución: ${JSON.stringify({ estrategia: resolver.estrategia, resultado: resolver.resultado, verificacion: resolver.verificacion })}
 Teoría: ${JSON.stringify(theory.ramas)}
 Investigación: ${JSON.stringify({ generalizaciones: research.generalizaciones, bibliografia: research.bibliografia })}
 
-Devuelve JSON: {"markdown":"contenido markdown completo"}`;
+Devuelve JSON: {"markdown":"contenido markdown completo y prístino"}`;
 }
 
 /* ============================================================
@@ -1624,10 +1654,8 @@ function assembleReport(run) {
     </div>
   </article>
   <div class="toolbar">
-    <button class="btn ghost sm" onclick="saveCurrentToKB()">💾 Guardar en Biblioteca</button>
     <span class="grow"></span>
     <button class="btn ghost sm" onclick="toggleTheme()">◐ Tema</button>
-    <button class="btn ghost sm" onclick="exportWordDocx()">⬇ Word (.docx)</button>
     <button class="btn ghost sm" onclick="downloadMd()">⬇ Markdown</button>
     <button class="btn primary sm" onclick="exportHTML()">⬇ Exportar informe .html</button>
   </div>`;
@@ -1742,13 +1770,12 @@ function exportHTML() {
   if (!body) { toast('Primero genera un análisis.'); return; }
   const css = document.querySelector('style').textContent;
   const title = (S.lastRun && S.lastRun.plan && S.lastRun.plan.titulo) || 'Informe matemático';
-  const bsl = String.fromCharCode(92);
   const endScript = '<' + '/script>';
   const mathJaxScript = '<script>\n' +
     'window.MathJax = {\n' +
     '  tex: {\n' +
-    '    inlineMath: [["$", "$"], ["' + bsl + bsl + '(", "' + bsl + bsl + ')"]],\n' +
-    '    displayMath: [["$$", "$$"], ["' + bsl + bsl + '[", "' + bsl + bsl + ']"]],\n' +
+    '    inlineMath: [["$", "$"]],\n' +
+    '    displayMath: [["$$", "$$"]],\n' +
     '    processEscapes: true\n' +
     '  },\n' +
     '  options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"] },\n' +
@@ -2047,23 +2074,6 @@ function init() {
   $('#listModelsBtn').onclick = listModelsAction;
   $('#helpKey').onclick = e => { e.preventDefault(); openModal('key'); };
   $('#aboutBtn').onclick = () => openModal('about');
-  $('#openKbBtn').onclick = openKBModal;
-  $('#saveKbBtn').onclick = saveCurrentToKB;
-  $('#kbModalClose').onclick = closeKBModal;
-  $('#kbModal').onclick = e => { if (e.target.id === 'kbModal') closeKBModal(); };
-  $('#kbSearchInp').addEventListener('input', renderKBModal);
-  $('#kbSynthesizeBtn').onclick = synthesizeKB;
-  $('#kbSelectAllBtn').onclick = () => {
-    const all = $$('.kb-check');
-    const someUnchecked = all.some(c => !c.checked);
-    all.forEach(c => c.checked = someUnchecked);
-    updateKBSelectionState();
-  };
-  $('#kbExportJsonBtn').onclick = () => {
-    download('praxis_biblioteca.json', JSON.stringify(getKB(), null, 2), 'application/json');
-    toast('Biblioteca exportada a JSON.');
-  };
-  updateKBCounter();
   $('#modalClose').onclick = closeModal;
   $('#modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
   $('#themeBtn').onclick = toggleTheme;
@@ -2161,454 +2171,6 @@ function syncChips() {
 }
 
 window.addEventListener('DOMContentLoaded', init);
-
-/* ============================================================
-   BASE DE CONOCIMIENTO (KNOWLEDGE BASE & SYNTHESIS HUB)
-   ============================================================ */
-const KB_STORAGE = 'praxis_knowledge_base';
-
-function getKB() {
-  try { return JSON.parse(localStorage.getItem(KB_STORAGE) || '[]'); }
-  catch (e) { return []; }
-}
-
-function saveKB(list) {
-  try {
-    localStorage.setItem(KB_STORAGE, JSON.stringify(list));
-    updateKBCounter();
-  } catch (e) { log('Error guardando en base de conocimiento: ' + e.message); }
-}
-
-function updateKBCounter() {
-  const count = getKB().length;
-  const el = $('#kbCount');
-  if (el) el.textContent = count;
-}
-
-function saveCurrentToKB() {
-  if (!S.lastRun || !S.lastRun.plan) {
-    toast('No hay ningún análisis para guardar.');
-    return;
-  }
-  const userPrompt = $('#prompt').value.trim();
-  addToKB(S.lastRun, userPrompt);
-}
-
-function addToKB(run, userPrompt) {
-  if (!run || !run.plan) return;
-  const list = getKB();
-  const title = (run.report && run.report.titulo_final) || run.plan.titulo || 'Estudio Matemático';
-
-  // Verificar si ya existe por título para actualizar o crear nuevo
-  const existingIdx = list.findIndex(it => it.titulo === title);
-  const item = {
-    id: (existingIdx >= 0 ? list[existingIdx].id : uid()),
-    timestamp: new Date().toISOString(),
-    dateStr: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    titulo: title,
-    area: run.plan.area_principal || 'Matemáticas',
-    ramas: run.plan.ramas || [],
-    nivel: run.plan.nivel || 'avanzado',
-    prompt: userPrompt || (run.plan && run.plan.objetivo) || '',
-    audience: S.audience,
-    depth: S.depth,
-    model: S.model,
-    run: run
-  };
-
-  if (existingIdx >= 0) {
-    list[existingIdx] = item;
-    toast('💾 Estudio actualizado en la Base de Conocimiento.');
-  } else {
-    list.unshift(item);
-    toast('💾 Estudio guardado en la Base de Conocimiento.');
-  }
-  saveKB(list);
-}
-
-function openKBModal() {
-  renderKBModal();
-  $('#kbModal').classList.add('open');
-}
-
-function closeKBModal() {
-  $('#kbModal').classList.remove('open');
-}
-
-function renderKBModal() {
-  const list = getKB();
-  const q = ($('#kbSearchInp') ? $('#kbSearchInp').value.toLowerCase().trim() : '');
-  const container = $('#kbList');
-  if (!container) return;
-
-  const filtered = list.filter(it => {
-    if (!q) return true;
-    return (it.titulo || '').toLowerCase().includes(q) ||
-           (it.area || '').toLowerCase().includes(q) ||
-           (it.ramas || []).some(r => String(r).toLowerCase().includes(q));
-  });
-
-  if (!filtered.length) {
-    container.innerHTML = '<p class="prose" style="text-align:center;color:var(--muted);padding:24px 0;">' +
-      (list.length ? 'No se encontraron estudios que coincidan con la búsqueda.' : 'Aún no hay estudios guardados en la biblioteca. Analiza un ejercicio y pulsa "Guardar en Biblioteca".') +
-      '</p>';
-    updateKBSelectionState();
-    return;
-  }
-
-  container.innerHTML = filtered.map(it => `
-    <div class="card" style="padding:12px 14px;display:flex;gap:12px;align-items:flex-start;">
-      <input type="checkbox" class="kb-check" value="${it.id}" style="margin-top:4px;cursor:pointer;transform:scale(1.2);">
-      <div style="flex:1;min-width:0;">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
-          <span class="tag" style="background:var(--brand-tint);color:var(--brand);">${esc(it.area || 'Matemáticas')}</span>
-          <span style="font-size:11px;color:var(--muted);">${esc(it.dateStr || '')}</span>
-          <span style="font-size:11px;color:var(--muted);">· ${esc(it.model || '')}</span>
-        </div>
-        <div style="font-weight:700;font-size:14.5px;color:var(--ink);margin-bottom:4px;">${esc(it.titulo)}</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-          ${(it.ramas || []).map(r => '• ' + esc(r)).join(' ')}
-        </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="btn sm ghost" onclick="loadKBItem('${it.id}')">👁 Cargar</button>
-          <button class="btn sm ghost" onclick="regenerateKBItem('${it.id}')">🔄 Refinar / Regenerar</button>
-          <button class="btn sm ghost" onclick="exportWordFromKB('${it.id}')">⬇ Word</button>
-          <button class="btn sm ghost" style="color:var(--bad);" onclick="deleteKBItem('${it.id}')">🗑 Eliminar</button>
-        </div>
-      </div>
-    </div>
-  `).join('');
-
-  $$('.kb-check').forEach(ck => ck.onchange = updateKBSelectionState);
-  updateKBSelectionState();
-}
-
-function updateKBSelectionState() {
-  const selected = $$('.kb-check:checked');
-  const btn = $('#kbSynthesizeBtn');
-  const hint = $('#kbSelectedHint');
-  if (hint) hint.textContent = selected.length + ' seleccionado' + (selected.length === 1 ? '' : 's');
-  if (btn) btn.disabled = (selected.length < 2);
-}
-
-function deleteKBItem(id) {
-  if (!confirm('¿Deseas eliminar este estudio de la Base de Conocimiento?')) return;
-  let list = getKB();
-  list = list.filter(it => it.id !== id);
-  saveKB(list);
-  renderKBModal();
-  toast('Estudio eliminado.');
-}
-
-function loadKBItem(id) {
-  const list = getKB();
-  const item = list.find(it => it.id === id);
-  if (!item || !item.run) { toast('No se pudo cargar el estudio.'); return; }
-  S.lastRun = item.run;
-  $('#prompt').value = item.prompt || '';
-  renderPipeline();
-  STAGES.forEach(s => setStage(s.id, 'done', 'cargado de biblioteca'));
-  assembleReport(item.run);
-  closeKBModal();
-  toast('Estudio cargado: ' + item.titulo);
-}
-
-function regenerateKBItem(id) {
-  const list = getKB();
-  const item = list.find(it => it.id === id);
-  if (!item) return;
-  $('#prompt').value = item.prompt || '';
-  closeKBModal();
-  $('#prompt').focus();
-  toast('Ejercicio listo en el compositor para refinar o volver a analizar.');
-}
-
-function exportWordFromKB(id) {
-  const list = getKB();
-  const item = list.find(it => it.id === id);
-  if (!item || !item.run) return;
-  generateDocxFile(item.run.markdown, item.titulo);
-}
-
-/* ============================================================
-   AGENTE DE SÍNTESIS Y UNIFICACIÓN COGNITIVA ("Unir Piezas")
-   ============================================================ */
-async function synthesizeKB() {
-  const selectedCks = $$('.kb-check:checked');
-  if (selectedCks.length < 2) {
-    toast('Selecciona al menos 2 estudios para sintetizar.');
-    return;
-  }
-  const ids = selectedCks.map(c => c.value);
-  const list = getKB();
-  const items = list.filter(it => ids.includes(it.id));
-
-  closeKBModal();
-  setStat('run', 'Sintetizando y uniendo estudios…');
-  $('#runBtn').innerHTML = '■ Detener';
-  S.running = true;
-  renderPipeline();
-
-  const studiesSummary = items.map((it, idx) => `
-ESTUDIO ${idx + 1}:
-Título: ${it.titulo}
-Área: ${it.area}
-Ramas: ${(it.ramas || []).join(', ')}
-Problema / Objetivo: ${it.prompt}
-Resultado obtenido: ${(it.run.resolver && it.run.resolver.resultado) || ''}
-Estrategia: ${(it.run.resolver && it.run.resolver.estrategia) || ''}
-Teoremas clave: ${(it.run.theory && it.run.theory.ramas ? it.run.theory.ramas.map(r => r.nombre + ': ' + (r.items || []).map(x => x.nombre).join(', ')).join('; ') : '')}
-`).join('\n-------------------------------------\n');
-
-  const synthPrompt = `${SYSTEM_CORE}
-
-FASE ESPECIAL — META-SÍNTESIS E INTERCONEXIÓN COGNITIVA.
-Tu misión: Tomar los siguientes ${items.length} estudios matemáticos y unificarlos en una investigación profunda, demostrando cómo se conectan, qué estructuras comparten (isomorfismos, dualidades, paralelismos) y creando un marco conceptual superior.
-
-${audienceInstr(S.audience)}
-${depthInstr(S.depth)}
-
-ESTUDIOS BASE A UNIFICAR:
-${studiesSummary}
-
-Genera un estudio maestro unificado que contenga:
-1. "titulo": Título de la investigación unificada.
-2. "area_principal": Área paraguas que engloba las ramas analizadas.
-3. "ramas": Ramas combinadas.
-4. "objetivo": Tesis de unificación o sistema compuesto.
-5. "enunciado_formal": Formulación matemática del puente o problema compuesto.
-6. "estrategia": Cómo se interconectan los resultados anteriores.
-7. "pasos": Pasos rigurosos del análisis unificado (título, html, latex, herramienta).
-8. "resultado": Conclusión o teorema unificado en LaTeX.
-9. "verificacion": Consistencia de la unión.
-10. "teoria_ramas": Marco teórico conjunto con definiciones y teoremas de enlace.
-11. "generalizaciones": Aplicaciones y nuevas preguntas que surgen de la unión de estas piezas.
-12. "markdown": Documento completo en formato Markdown listo para Word con fórmulas $$...$$ y $...$.
-
-Devuelve estrictamente un objeto JSON con estas claves.`;
-
-  try {
-    setStage('plan', 'running', 'analizando paralelismos e isomorfismos...');
-    const synthData = await askJSON(synthPrompt, { temperature: 0.35 });
-    setStage('plan', 'done', 'interconexión establecida');
-    setStage('resolve', 'done', (synthData.pasos || []).length + ' pasos de unificación');
-    setStage('theory', 'done', 'marco unificado');
-    setStage('figures', 'done', '0 figuras');
-    setStage('research', 'done', (synthData.generalizaciones || []).length + ' extensiones');
-    setStage('report', 'done', 'informe maestro listo');
-    setStage('md', 'done', 'markdown generado');
-
-    const synthesizedRun = {
-      plan: {
-        titulo: synthData.titulo || 'Meta-Síntesis Matemática',
-        area_principal: synthData.area_principal || 'Investigación Unificada',
-        ramas: synthData.ramas || [],
-        objetivo: synthData.objetivo || '',
-        hipotesis: ['Interconexión de resultados previos'],
-        notacion: [],
-        riesgos: []
-      },
-      resolver: {
-        enunciado_formal: synthData.enunciado_formal || synthData.objetivo,
-        estrategia: synthData.estrategia || '',
-        pasos: synthData.pasos || [],
-        resultado: synthData.resultado || '',
-        verificacion: synthData.verificacion || '',
-        observaciones: 'Estudio producto de la fusión y síntesis de ' + items.length + ' investigaciones previas.'
-      },
-      theory: {
-        ramas: synthData.teoria_ramas || [],
-        herramientas: [],
-        glosario: []
-      },
-      figures: { figuras: [], notas_imagenes: 'Síntesis conceptual teórica' },
-      research: {
-        generalizaciones: synthData.generalizaciones || [],
-        problemas_abiertos: [],
-        aplicaciones: [],
-        historia: [],
-        bibliografia: [],
-        recursos: [],
-        preguntas_siguientes: []
-      },
-      report: {
-        titulo_final: synthData.titulo,
-        html: '<div class="prose"><p>' + (synthData.estrategia || '') + '</p></div>'
-      },
-      markdown: synthData.markdown || '# ' + synthData.titulo
-    };
-
-    assembleReport(synthesizedRun);
-    S.lastRun = synthesizedRun;
-    addToKB(synthesizedRun, 'Síntesis combinada de: ' + items.map(it => it.titulo).join(', '));
-    setStat('ok', 'Síntesis completada');
-    toast('✓ Síntesis unificada completada y guardada.');
-  } catch (err) {
-    setStat('bad', 'Error en síntesis');
-    toast('Error al sintetizar: ' + (err.message || err), 4500);
-    log('ERROR SÍNTESIS: ' + (err.message || err));
-  } finally {
-    S.running = false;
-    $('#runBtn').innerHTML = '▶ Analizar';
-  }
-}
-
-/* ============================================================
-   EXPORTADOR DE WORD (.DOCX) CON ECUACIONES EDITABLES (OMML)
-   ============================================================ */
-function exportWordDocx() {
-  if (!S.lastRun || !S.lastRun.markdown) {
-    toast('Primero genera un análisis matemático.');
-    return;
-  }
-  const title = (S.lastRun.plan && S.lastRun.plan.titulo) || 'Informe Matemático';
-  generateDocxFile(S.lastRun.markdown, title);
-}
-
-async function generateDocxFile(markdown, title) {
-  toast('Generando documento de Word (.docx)...');
-  const safeTitle = (title || 'informe').replace(/[^\w\-]+/g, '_').slice(0, 50);
-
-  // Si JSZip está disponible, creamos un archivo .docx binario nativo con OMML
-  if (typeof JSZip !== 'undefined') {
-    try {
-      const zip = new JSZip();
-
-      // [Content_Types].xml
-      zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-  <Default Extension="xml" ContentType="application/xml"/>
-  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
-</Types>`);
-
-      // _rels/.rels
-      zip.folder('_rels').file('.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-</Relationships>`);
-
-      // word/_rels/document.xml.rels
-      zip.folder('word').folder('_rels').file('document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-</Relationships>`);
-
-      // word/styles.xml
-      zip.folder('word').file('styles.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:docDefaults>
-    <w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/><w:color w:val="1E2832"/></w:rPr></w:rPrDefault>
-    <w:pPrDefault><w:pPr><w:spacing w:line="276" w:lineRule="auto" w:after="120"/></w:pPr></w:pPrDefault>
-  </w:docDefaults>
-  <w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:rPr><w:rFonts w:ascii="Georgia" w:hAnsi="Georgia"/><w:b/><w:sz w:val="36"/><w:color w:val="1A73E8"/></w:rPr></w:style>
-  <w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:rPr><w:rFonts w:ascii="Georgia" w:hAnsi="Georgia"/><w:b/><w:sz w:val="28"/><w:color w:val="D93025"/></w:rPr></w:style>
-  <w:style w:type="paragraph" w:styleId="Heading3"><w:name w:val="heading 3"/><w:rPr><w:rFonts w:ascii="Georgia" w:hAnsi="Georgia"/><w:b/><w:sz w:val="24"/><w:color w:val="1E2832"/></w:rPr></w:style>
-</w:styles>`);
-
-      // Construcción de word/document.xml con parsing de Markdown y ecuaciones OMML
-      let bodyXml = '';
-      const lines = (markdown || '').split('\n');
-      let inBlockEq = false;
-      let blockEqText = [];
-
-      for (let i = 0; i < lines.length; i++) {
-        const s = lines[i].trim();
-
-        if (s.startsWith('$$') && s.endsWith('$$') && s.length > 4) {
-          const eq = s.slice(2, -2).trim().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-          bodyXml += `<w:p><w:pPr><w:jc w:val="center"/></w:pPr><m:oMathPara xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"><m:oMath><m:r><m:t>${eq}</m:t></m:r></m:oMath></m:oMathPara></w:p>`;
-          continue;
-        } else if (s === '$$') {
-          if (inBlockEq) {
-            inBlockEq = false;
-            const eq = blockEqText.join(' ').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            bodyXml += `<w:p><w:pPr><w:jc w:val="center"/></w:pPr><m:oMathPara xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"><m:oMath><m:r><m:t>${eq}</m:t></m:r></m:oMath></m:oMathPara></w:p>`;
-            blockEqText = [];
-          } else {
-            inBlockEq = true;
-            blockEqText = [];
-          }
-          continue;
-        } else if (inBlockEq) {
-          blockEqText.push(s);
-          continue;
-        }
-
-        if (!s) continue;
-
-        if (s.startsWith('# ')) {
-          const t = s.slice(2).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-          bodyXml += `<w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>${t}</w:t></w:r></w:p>`;
-        } else if (s.startsWith('## ')) {
-          const t = s.slice(3).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-          bodyXml += `<w:p><w:pPr><w:pStyle w:val="Heading2"/></w:pPr><w:r><w:t>${t}</w:t></w:r></w:p>`;
-        } else if (s.startsWith('### ')) {
-          const t = s.slice(4).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-          bodyXml += `<w:p><w:pPr><w:pStyle w:val="Heading3"/></w:pPr><w:r><w:t>${t}</w:t></w:r></w:p>`;
-        } else if (s === '---') {
-          bodyXml += `<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:color w:val="C0C8D0"/></w:rPr><w:t>――――――――――――――――――――――――――――――――――――――</w:t></w:r></w:p>`;
-        } else {
-          // Parsear texto normal con ecuaciones inline ($...$ o \(...\))
-          let pRuns = '';
-          const rawTokens = s.split(/(\$\$.*?\$\$|\\(.*?\\)|(?<!\$)\$[^\$]+?\$(?!\$))/g);
-          for (let ti = 0; ti < rawTokens.length; ti++) {
-            const tk = rawTokens[ti];
-            if (!tk) continue;
-            if (tk.startsWith('$$') && tk.endsWith('$$')) {
-              const eq = tk.slice(2, -2).trim().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-              pRuns += `<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"><m:r><m:t>${eq}</m:t></m:r></m:oMath>`;
-            } else if (tk.startsWith('\\(') && tk.endsWith('\\)')) {
-              const eq = tk.slice(2, -2).trim().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-              pRuns += `<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"><m:r><m:t>${eq}</m:t></m:r></m:oMath>`;
-            } else if (tk.startsWith('$') && tk.endsWith('$')) {
-              const eq = tk.slice(1, -1).trim().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-              pRuns += `<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"><m:r><m:t>${eq}</m:t></m:r></m:oMath>`;
-            } else {
-              const safeText = tk.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-              pRuns += `<w:r><w:t xml:space="preserve">${safeText}</w:t></w:r>`;
-            }
-          }
-          bodyXml += `<w:p>${pRuns}</w:p>`;
-        }
-      }
-
-      zip.folder('word').file('document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-            xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
-  <w:body>
-    ${bodyXml}
-    <w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr>
-  </w:body>
-</w:document>`);
-
-      const content = await zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-      const url = URL.createObjectURL(content);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = safeTitle + '.docx';
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1500);
-      toast('Documento Word (.docx) descargado exitosamente.');
-      return;
-    } catch (e) {
-      log('Generación JSZip falló, usando exportación Word XML compatible: ' + e.message);
-    }
-  }
-
-  // Fallback: Word XML autónomo que Word abre de forma nativa
-  const safeDoc = `<?xml version="1.0"?>
-<?mso-application progid="Word.Document"?>
-<w:wordDocument xmlns:w="http://schemas.microsoft.com/office/word/2003/wordml">
-  <w:body>
-    <w:p><w:r><w:rPr><w:b/><w:sz w:val="36"/></w:rPr><w:t>${title}</w:t></w:r></w:p>
-    <w:p><w:r><w:t>${markdown.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</w:t></w:r></w:p>
-  </w:body>
-</w:wordDocument>`;
-  download(safeTitle + '.doc', safeDoc, 'application/msword');
-  toast('Archivo Word descargado.');
-}
 
 </script>
 </body>
