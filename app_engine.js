@@ -71,11 +71,23 @@ async function typeset(el) {
 }
 
 function download(name, text, mime = 'text/plain') {
-  const b = new Blob([text], { type: mime + ';charset=utf-8' });
-  const u = URL.createObjectURL(b);
-  const a = document.createElement('a');
-  a.href = u; a.download = name; a.click();
-  setTimeout(() => URL.revokeObjectURL(u), 1500);
+  try {
+    const b = new Blob([text], { type: mime + ';charset=utf-8' });
+    const u = URL.createObjectURL(b);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = u;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      if (a.parentNode) a.parentNode.removeChild(a);
+      URL.revokeObjectURL(u);
+    }, 60000);
+  } catch (err) {
+    console.error('Error al descargar:', err);
+    toast('Error en descarga: ' + err.message);
+  }
 }
 
 function unique(arr) {

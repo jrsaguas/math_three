@@ -1,19 +1,55 @@
-# Praxis · Orquestador Cognitivo de Matemáticas (Gemini v6 Engine)
+# Praxis V7 Suite · Guía de Ejecución Local en Visual Studio Code
 
-Suite completa para análisis, formalización e investigación de problemas matemáticos utilizando la API de Google Gemini.
+Suite completa de orquestación cognitiva matemática y exportación a Microsoft Word (.docx y .doc con ecuaciones nativas 2D).
 
-## 📂 Contenido del Proyecto
-- **`index.html`**: Aplicación web definitiva y unificada. Integra de forma nativa el motor resiliente v6 (sin scripts externos), con selector dinámico de modelos, fallback de autenticación (Header `x-goog-api-key` y Query `?key=`), soporte para claves `AIza...` y `AQ...`, renderizado LaTeX con MathJax v3, figuras matemáticas en SVG interactivo y exportación a HTML y Markdown para Word.
-- **`test.html`**: Utilidad autónoma de diagnóstico para verificar desde el móvil o navegador si tu API Key de Gemini responde correctamente (test de Header vs Query, códigos HTTP 200, 401, 403, 404, 429 y bloqueos CORS).
-- **`gemini-aq-patch.js`**: Módulo/parche standalone v6 desacoplado, útil si deseas inyectar este motor de conexión en otras aplicaciones web o pruebas modulares.
+## 1. Requisitos y Entorno Virtual (.venv)
+Ya tienes instalado en tu entorno:
+- Python 3
+- `pandoc.exe` (Windows)
+- `python-docx`, `pypandoc`, `lxml`
 
-## 🚀 Despliegue en GitHub Pages
-1. Sube estos archivos a tu repositorio en GitHub.
-2. Ve a **Settings > Pages** en tu repositorio.
-3. En **Build and deployment > Branch**, selecciona `main` (o la rama donde esté) y carpeta `/ (root)`.
-4. Haz clic en **Save**. En un par de minutos tu aplicación estará disponible en `https://<tu-usuario>.github.io/<tu-repo>/`.
+## 2. Cómo ejecutar desde Visual Studio Code
 
-## 🔑 Configuración de API Key
-- Puedes utilizar tanto claves estándar de [Google AI Studio](https://aistudio.google.com/api-keys) (`AIza...`) como tokens/claves de despliegue (`AQ...`).
-- La clave se guarda de manera 100% privada en el `localStorage` de tu navegador; no viaja a ningún servidor intermediario ni queda expuesta en el código fuente.
-- En caso de dudas sobre conectividad móvil, abre directamente `test.html` en tu navegador móvil.
+### Paso A: Abrir la carpeta en VS Code
+1. Abre **Visual Studio Code**.
+2. Ve a `File` -> `Open Folder...` y selecciona la carpeta de tu repositorio:
+   `C:\Users\EL JEFE\Documents\praxis_v7_suite`
+
+### Paso B: Abrir la Terminal Integrada de PowerShell
+1. Abre la terminal en VS Code: `Terminal` -> `New Terminal` (o presiona `Ctrl + \``).
+2. Asegúrate de que el entorno virtual esté activo:
+   `(.venv) PS C:\Users\EL JEFE\Documents\praxis_v7_suite>`
+   *(Si no está activo, actívalo con: `.\.venv\Scripts\Activate.ps1`)*
+
+### Paso C: Iniciar el Servidor Local
+Ejecuta en la terminal:
+```powershell
+python server.py
+```
+Esto iniciará el servidor en `http://localhost:8000` y abrirá automáticamente tu navegador.
+- Al correr bajo el servidor local HTTP, se eliminan todas las restricciones de descarga de archivos del navegador.
+- Cuando pulses el botón **`⬇ Word (.docx)`** en la aplicación web, el servidor invocará automáticamente tu `pandoc.exe` local y te descargará el Word con ecuaciones 100% nativas OMML de Microsoft Word.
+
+## 3. Conversión Directa de Archivos Markdown desde la Terminal
+Si ya tienes un archivo Markdown (como `Investigaci_n_rigurosa_del_sistema_din_mico_lineal.md`), puedes compilarlo directamente a Word con Pandoc:
+
+```powershell
+python convert.py
+```
+O especificando el archivo:
+```powershell
+python convert.py "Investigaci_n_rigurosa_del_sistema_din_mico_lineal.md"
+```
+O directamente con el comando de Pandoc:
+```powershell
+pandoc "Investigaci_n_rigurosa_del_sistema_din_mico_lineal.md" -o "Resultado.docx"
+```
+
+## 4. Archivos Incluidos
+- `index.html`: Aplicación web con Laboratorio Interactivo, MathJax v3 y Capa de Conocimiento Matemático.
+- `server.py`: Servidor local con API de compilación a Word vía Pandoc.
+- `convert.py`: Conversor CLI para terminal.
+- `app_engine.js`: Motor cognitivo modular de agentes.
+- `Investigaci_n_rigurosa_del_sistema_din_mico_lineal.docx`: Word nativo con ecuaciones OMML sin duplicaciones.
+- `Investigaci_n_rigurosa_del_sistema_din_mico_lineal_MathML.doc`: Word con MathML editable 2D.
+- `Investigaci_n_rigurosa_del_sistema_din_mico_lineal.md`: Markdown canónico estándar.
