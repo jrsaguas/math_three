@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Praxis · Orquestador Cognitivo de Matemáticas (Gemini)</title>
+<title>Praxis · Orquestador Cognitivo de Matemáticas (Gemini v6)</title>
 
 <!-- Tipografías: Fraunces (display) + IBM Plex Sans (texto) + IBM Plex Mono (código) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-<!-- MathJax (config ANTES de cargarlo) -->
+<!-- MathJax (configuración ANTES de cargarlo) -->
 <script>
 window.MathJax = {
-  tex: { inlineMath: [['\\(','\\)'],['$','$']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true, tags:'none' },
+  tex: { inlineMath: [['\(','\)'],['$','$']], displayMath: [['$$','$$'],['\[','\]']], processEscapes: true, tags:'none' },
   options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'], enableMenu: false },
   startup: { typeset: false }
 };
@@ -332,6 +332,35 @@ ol.steps-list{padding-left:1.2em} ol.steps-list li{margin:.4em 0}
 .warnbox{background:color-mix(in srgb,var(--bad) 10%,transparent); border:1px solid var(--bad); border-radius:10px; padding:11px 14px; font-size:13px; color:var(--ink-2); margin-top:12px}
 .warnbox b{color:var(--bad)}
 
+/* ---- Panel de Diagnostico y Movil V6 ---- */
+#praxisFixPanel{
+  position:fixed; right:12px; bottom:12px; width:min(430px, calc(100vw - 24px));
+  max-height:min(64vh, 650px); background:#0b1220; color:#e5e7eb; border:1px solid #334155;
+  border-radius:14px; box-shadow:0 18px 60px rgba(0,0,0,.55); z-index:2147483647;
+  font:13px system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; display:flex; flex-direction:column; overflow:hidden;
+}
+#praxisFixPanel.min{ max-height:44px; }
+.pfp-head{ display:flex; align-items:center; gap:8px; padding:10px 12px; background:#111827; border-bottom:1px solid #334155; cursor:pointer; user-select:none; }
+.pfp-head b{ flex:1; font-size:13px; }
+.pfp-body{ padding:10px; display:flex; flex-direction:column; gap:8px; min-height:0; }
+#praxisFixPanel.min .pfp-body{ display:none; }
+.pfp-row{ display:flex; gap:8px; flex-wrap:wrap; }
+.pfp-row button{ flex:1; min-width:120px; }
+#praxisFixPanel button{ padding:10px 12px; border-radius:10px; border:1px solid #475569; background:#1f2937; color:#e5e7eb; font:inherit; cursor:pointer; }
+#praxisFixPanel button.primary{ background:#1a73e8; border-color:#1a73e8; color:#fff; font-weight:800; }
+#praxisFixPanel button.good{ background:#14532d; border-color:#166534; color:#fff; font-weight:800; }
+#praxisFixPanel button.danger{ background:#7f1d1d; border-color:#991b1b; color:#fff; }
+.pfp-status{ padding:10px; border-radius:10px; border:1px solid #334155; background:#111827; font-weight:800; word-break:break-word; }
+.pfp-status.ok{ background:#052e16; border-color:#14532d; color:#86efac; }
+.pfp-status.bad{ background:#450a0a; border-color:#7f1d1d; color:#fecaca; }
+.pfp-status.warn{ background:#422006; border-color:#713f12; color:#fde68a; }
+.pfp-status.run{ background:#0c1a3a; border-color:#1d4ed8; color:#bfdbfe; }
+#pfpLog{
+  background:#020617; border:1px solid #1e293b; border-radius:10px; padding:10px;
+  min-height:150px; max-height:34vh; overflow:auto; white-space:pre-wrap; word-break:break-word;
+  font:12px ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; color:#d1d5db; margin:0;
+}
+
 @media (max-width:900px){
   body{overflow:auto}
   .app{grid-template-columns:1fr; height:auto}
@@ -360,7 +389,7 @@ ol.steps-list{padding-left:1.2em} ol.steps-list li{margin:.4em 0}
         </svg>
         <div>
           <h1>Praxis</h1>
-          <div class="sub">Gemini Edition</div>
+          <div class="sub">Gemini v6 Engine</div>
         </div>
       </div>
     </div>
@@ -368,24 +397,28 @@ ol.steps-list{padding-left:1.2em} ol.steps-list li{margin:.4em 0}
     <div class="side-scroll">
       <div class="sect-label">Conexión Gemini</div>
       <div class="field">
-        <label>API Key</label>
+        <label>API Key (AIza... o AQ...)</label>
         <div class="keyrow">
-          <input class="inp" type="password" id="apiKey" placeholder="AIza..." autocomplete="off" spellcheck="false">
+          <input class="inp" type="password" id="apiKey" placeholder="AQ... o AIza..." autocomplete="off" spellcheck="false">
           <button class="btn icon ghost" id="eyeBtn" title="Mostrar/ocultar">👁</button>
         </div>
-        <div class="hint">Se guarda solo en tu navegador. <a href="#" id="helpKey">¿Dónde obtenerla?</a></div>
+        <div class="hint">Guardada localmente en tu navegador. <a href="#" id="helpKey">¿Dónde obtenerla?</a></div>
       </div>
       <div class="field">
         <label>Modelo</label>
         <select class="inp" id="model">
-          <option value="gemini-2.0-flash-exp">gemini-2.0-flash-exp (Gratis/Rápido)</option>
+          <option value="gemini-2.5-flash">gemini-2.5-flash (Recomendado)</option>
+          <option value="gemini-2.0-flash">gemini-2.0-flash (Rápido)</option>
           <option value="gemini-1.5-flash">gemini-1.5-flash (Estable)</option>
           <option value="gemini-1.5-pro">gemini-1.5-pro (Avanzado)</option>
           <option value="custom">Personalizado…</option>
         </select>
-        <input class="inp" id="customModel" placeholder="p. ej. gemini-2.0-flash" style="margin-top:7px; display:none">
+        <input class="inp" id="customModel" placeholder="p. ej. gemini-2.5-flash" style="margin-top:7px; display:none">
       </div>
-      <button class="btn ghost block sm" id="testBtn">Probar conexión</button>
+      <div style="display:flex; gap:6px; margin-bottom:8px">
+        <button class="btn ghost sm" style="flex:1" id="testBtn">Probar conexión</button>
+        <button class="btn ghost sm" style="flex:1" id="listModelsBtn">Listar modelos</button>
+      </div>
 
       <div class="sect-label">Audiencia</div>
       <div class="chips" id="audChips">
@@ -426,6 +459,7 @@ ol.steps-list{padding-left:1.2em} ol.steps-list li{margin:.4em 0}
       <div class="spacer"></div>
       <span class="pill" id="connPill"><span class="st"></span><span id="connTxt">Sin conectar</span></span>
       <span class="pill" id="statPill"><span class="st"></span><span id="statTxt">Listo</span></span>
+      <button class="btn icon ghost" id="toggleDiagBtn" title="Consola de Diagnóstico">🛠</button>
       <button class="btn icon ghost" id="themeBtn" title="Tema">◐</button>
     </header>
 
@@ -454,6 +488,29 @@ ol.steps-list{padding-left:1.2em} ol.steps-list li{margin:.4em 0}
   </main>
 </div>
 
+<!-- PANEL FLOTANTE DE DIAGNOSTICO MOVIL / V6 -->
+<div id="praxisFixPanel" class="min">
+  <div class="pfp-head">
+    <b>🛠 Diagnóstico & Conexión Móvil (v6)</b>
+    <span id="pfpToggle">+</span>
+  </div>
+  <div class="pfp-body">
+    <div id="pfpStatus" class="pfp-status">Iniciando…</div>
+    <div class="pfp-row">
+      <button id="pfpListModels" class="good">Listar modelos</button>
+      <button id="pfpTest" class="primary">Probar key</button>
+    </div>
+    <div class="pfp-row">
+      <button id="pfpCopy">Copiar log</button>
+      <button id="pfpReload">Recargar</button>
+    </div>
+    <div class="pfp-row">
+      <button id="pfpClear" class="danger">Borrar key local</button>
+    </div>
+    <pre id="pfpLog"></pre>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <!-- MODAL -->
@@ -467,55 +524,338 @@ ol.steps-list{padding-left:1.2em} ol.steps-list li{margin:.4em 0}
 <script>
 "use strict";
 /* ============================================================
-   PRAXIS — multi-agente de matemáticas con GEMINI (HTML puro)
+   PRAXIS V6 — MOTOR NATIVO UNIFICADO PARA GEMINI
    ============================================================ */
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 
-/* ---------- estado ---------- */
+const STORAGE_KEY = 'praxis_gemini.cfg';
+const API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
+
+const PREFERRED_MODELS = [
+  'gemini-2.5-flash',
+  'gemini-2.0-flash',
+  'gemini-1.5-flash',
+  'gemini-1.5-pro',
+  'gemini-flash-latest'
+];
+
+let cachedModels = [];
+
+/* Estado global de la aplicación */
 const S = {
-  key:'AQ.Ab8RN6JYWyOPLZqiQwAEfVhNHB5l_TRwcaCoel5SIk34y9IGBw', // Tu key precargada
-  model:'gemini-2.0-flash-exp', customModel:'',
-  audience:'doctor', depth:'profunda', tools:{web:true,pdf:true,zip:false,code:false},
-  files:[], running:false, abort:null, lastRun:null
+  key: 'AQ.Ab8RN6JYWyOPLZqiQwAEfVhNHB5l_TRwcaCoel5SIk34y9IGBw', // Clave precargada
+  model: 'gemini-2.5-flash',
+  customModel: '',
+  audience: 'doctor',
+  depth: 'profunda',
+  tools: { web: true, pdf: true, zip: false, code: false },
+  files: [],
+  running: false,
+  abort: null,
+  lastRun: null
 };
-const AUD_LABEL = {doctor:'Doctores en Matemáticas', maestro:'Maestros de Matemáticas', licenciatura:'Estudiantes de Licenciatura en Matemáticas', publico:'Público en General'};
-const DEPTH_LABEL = {breve:'Breve', media:'Media', profunda:'Profunda'};
-const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/';
 
-/* ---------- persistencia ---------- */
-function saveCfg(){ try{ localStorage.setItem('praxis_gemini.cfg', JSON.stringify({key:S.key,model:S.model,customModel:S.customModel,audience:S.audience,depth:S.depth,tools:S.tools})); }catch(e){} }
-function loadCfg(){ try{ const c=JSON.parse(localStorage.getItem('praxis_gemini.cfg')||'{}'); Object.assign(S,{model:c.model||S.model,customModel:c.customModel||'',audience:c.audience||S.audience,depth:c.depth||S.depth}); if(c.tools)S.tools=c.tools; if(c.key){S.key=c.key;} }catch(e){} }
+const AUD_LABEL = {
+  doctor: 'Doctores en Matemáticas',
+  maestro: 'Maestros de Matemáticas',
+  licenciatura: 'Estudiantes de Licenciatura en Matemáticas',
+  publico: 'Público en General'
+};
+const DEPTH_LABEL = { breve: 'Breve', media: 'Media', profunda: 'Profunda' };
 
-/* ---------- utils ---------- */
-const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const uid = () => 'id'+Math.random().toString(36).slice(2,9);
-function toast(msg,ms=2600){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),ms); }
-function debounce(fn,ms){ let h; return (...a)=>{clearTimeout(h); h=setTimeout(()=>fn(...a),ms);} }
-async function typeset(el){ if(window.MathJax&&MathJax.typesetPromise){ try{ await MathJax.typesetPromise(el?[el]:undefined); }catch(e){} } }
-function download(name,text,mime='text/plain'){ const b=new Blob([text],{type:mime+';charset=utf-8'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(u),1500); }
+/* Utilidades básicas */
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => 'id' + Math.random().toString(36).slice(2, 9);
+function now() { return new Date().toLocaleTimeString(); }
 
-/* ---------- parseo robusto de JSON (Gemini a veces envuelve en ```json) ---------- */
-function extractJSON(text){
-  if(!text) throw new Error('respuesta vacía');
-  let t = text.trim().replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'').trim();
-  const first = t.search(/[{[]/);
-  if(first>=0){
-    const open=t[first], close=open==='{'?'}':']';
-    let depth=0,inStr=false,esc=false,end=-1;
-    for(let i=first;i<t.length;i++){ const ch=t[i];
-      if(inStr){ if(esc)esc=false; else if(ch==='\\')esc=true; else if(ch==='"')inStr=false; }
-      else { if(ch==='"')inStr=true; else if(ch===open)depth++; else if(ch===close){depth--; if(depth===0){end=i;break;}} }
-    }
-    if(end>first) t=t.slice(first,end+1);
+function toast(msg, ms = 2800) {
+  const t = $('#toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h = setTimeout(() => t.classList.remove('show'), ms);
+}
+
+function debounce(fn, ms) {
+  let h;
+  return (...a) => { clearTimeout(h); h = setTimeout(() => fn(...a), ms); };
+}
+
+async function typeset(el) {
+  if (window.MathJax && MathJax.typesetPromise) {
+    try { await MathJax.typesetPromise(el ? [el] : undefined); } catch (e) {}
   }
-  try{ return JSON.parse(t); }catch(e){}
-  try{ return JSON.parse(t.replace(/,\s*([}\]])/g,'$1')); }catch(e){}
-  throw new Error('La IA no devolvió JSON válido. '+String(e.message||e).slice(0,120));
+}
+
+function download(name, text, mime = 'text/plain') {
+  const b = new Blob([text], { type: mime + ';charset=utf-8' });
+  const u = URL.createObjectURL(b);
+  const a = document.createElement('a');
+  a.href = u; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(u), 1500);
+}
+
+function unique(arr) {
+  const out = [], seen = {};
+  for (let i = 0; i < arr.length; i++) {
+    const v = String(arr[i] || '').trim();
+    if (v && !seen[v]) { seen[v] = 1; out.push(v); }
+  }
+  return out;
+}
+
+function validKey(k) {
+  k = String(k || '').trim();
+  return /^AIza[0-9A-Za-z_-]{20,}$/.test(k) || /^AQ\.[A-Za-z0-9_.-]{20,}$/.test(k);
+}
+
+/* Diagnóstico en panel y consola */
+function log(msg) {
+  const text = typeof msg === 'string' ? msg : JSON.stringify(msg, null, 2);
+  const logEl = $('#pfpLog');
+  if (logEl) {
+    logEl.textContent += '[' + now() + '] ' + text + '\n\n';
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+  console.log('[Praxis v6]', msg);
+}
+
+function setPanelStatus(type, msg) {
+  const el = $('#pfpStatus');
+  if (!el) return;
+  el.className = 'pfp-status ' + type;
+  el.textContent = msg;
+}
+
+function friendlyError(e) {
+  const msg = String(e && e.message || e || 'Error desconocido');
+  const status = e && e.status;
+  if (/Failed to fetch|NetworkError|Load failed|CORS/i.test(msg)) {
+    return 'Error de red o CORS. Abre la URL en GitHub Pages o servidor web, no directo desde visor local restringido. Detalle: ' + msg;
+  }
+  if (status === 400) return 'HTTP 400: Petición inválida (revisar JSON o modelo). Detalle: ' + msg;
+  if (status === 401) return 'HTTP 401: API Key inválida o no autorizada. Crea una nueva en Google AI Studio. Detalle: ' + msg;
+  if (status === 403) return 'HTTP 403: Permiso denegado (revisa restricciones de clave, proyecto o cuota). Detalle: ' + msg;
+  if (status === 404) return 'HTTP 404: El modelo solicitado no está disponible. Usa el botón "Listar modelos". Detalle: ' + msg;
+  if (status === 429) return 'HTTP 429: Cuota excedida o rate limit alcanzado. Espera un momento o cambia de modelo.';
+  return msg;
+}
+
+/* Persistencia y sincronización de configuración */
+function saveCfg() {
+  try {
+    const payload = {
+      key: validKey(S.key) ? S.key : '',
+      model: S.model,
+      customModel: S.customModel,
+      audience: S.audience,
+      depth: S.depth,
+      tools: S.tools
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  } catch (e) {}
+}
+
+function loadCfg() {
+  try {
+    const c = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    if (validKey(c.key)) S.key = c.key;
+    if (c.model && c.model !== 'gemini-2.0-flash-exp') S.model = c.model;
+    if (typeof c.customModel === 'string') S.customModel = c.customModel;
+    if (c.audience) S.audience = c.audience;
+    if (c.depth) S.depth = c.depth;
+    if (c.tools) S.tools = c.tools;
+  } catch (e) {}
+}
+
+/* Parseo robusto de respuestas JSON */
+function extractJSON(text) {
+  if (!text) throw new Error('Respuesta vacía');
+  let t = String(text).trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  const first = t.search(/[{[]/);
+  if (first >= 0) {
+    const open = t[first], close = open === '{' ? '}' : ']';
+    let depth = 0, inStr = false, escCh = false, end = -1;
+    for (let i = first; i < t.length; i++) {
+      const ch = t[i];
+      if (inStr) {
+        if (escCh) escCh = false;
+        else if (ch === '\\') escCh = true;
+        else if (ch === '"') inStr = false;
+      } else {
+        if (ch === '"') inStr = true;
+        else if (ch === open) depth++;
+        else if (ch === close) {
+          depth--;
+          if (depth === 0) { end = i; break; }
+        }
+      }
+    }
+    if (end > first) t = t.slice(first, end + 1);
+  }
+  try { return JSON.parse(t); } catch (e) {}
+  try { return JSON.parse(t.replace(/,\s*([}\]])/g, '$1')); } catch (e2) {
+    throw new Error('La IA no devolvió JSON válido: ' + String(e2.message || e2).slice(0, 120));
+  }
 }
 
 /* ============================================================
-   PROMPTS DEL ORQUESTADOR (Adaptados a Gemini)
+   CLIENTE NATIVO DE GEMINI V6 (Dual Auth + Auto Fallback)
+   ============================================================ */
+async function rawFetch(url, init) {
+  const res = await fetch(url, init);
+  const text = await res.text();
+  let json = null;
+  try { json = JSON.parse(text); } catch (e) {}
+  if (!res.ok) {
+    const msg = (json && json.error && json.error.message) || text.slice(0, 600) || res.statusText;
+    const err = new Error('HTTP ' + res.status + ': ' + msg);
+    err.status = res.status;
+    err.json = json;
+    err.text = text;
+    throw err;
+  }
+  return json || {};
+}
+
+async function fetchModels() {
+  const key = (S.key || '').trim();
+  if (!validKey(key)) throw new Error('Falta una API key válida para listar modelos (AIza... o AQ...).');
+  const url = API_BASE + '/models?pageSize=200';
+  let json = null;
+
+  try {
+    json = await rawFetch(url, { method: 'GET', mode: 'cors', headers: { 'x-goog-api-key': key } });
+  } catch (e) {
+    log('GET /models vía header falló, intentando con parámetro ?key=: ' + (e.message || e));
+    json = await rawFetch(url + '?key=' + encodeURIComponent(key), { method: 'GET', mode: 'cors' });
+  }
+
+  const models = Array.isArray(json.models) ? json.models : [];
+  const parsed = models.map(m => {
+    const name = String(m.name || '').replace(/^models\//, '').trim();
+    const methods = Array.isArray(m.supportedGenerationMethods) ? m.supportedGenerationMethods : [];
+    return { name, methods };
+  }).filter(m => !!m.name);
+
+  const usable = parsed.filter(m => !m.methods.length || m.methods.includes('generateContent') || m.methods.includes('streamGenerateContent')).map(m => m.name);
+  const all = parsed.map(m => m.name);
+  cachedModels = unique(usable.concat(all));
+
+  cachedModels.sort((a, b) => {
+    let ia = PREFERRED_MODELS.indexOf(a), ib = PREFERRED_MODELS.indexOf(b);
+    if (ia < 0) ia = 999;
+    if (ib < 0) ib = 999;
+    if (ia !== ib) return ia - ib;
+    return String(a).localeCompare(String(b));
+  });
+
+  if (!cachedModels.length) throw new Error('No se encontraron modelos disponibles para esta clave.');
+
+  let preferredFound = PREFERRED_MODELS.find(pm => cachedModels.includes(pm));
+  if (!cachedModels.includes(S.model)) {
+    S.model = preferredFound || cachedModels[0];
+  }
+
+  updateModelSelect();
+  saveCfg();
+  updateConn();
+  return cachedModels;
+}
+
+async function callGemini(prompt, opts = {}) {
+  const key = (S.key || '').trim();
+  if (!validKey(key)) throw new Error('Falta una API key válida. Debe comenzar con AIza... o AQ...');
+
+  const activeModel = S.model === 'custom' ? (S.customModel || PREFERRED_MODELS[0]) : S.model;
+  const candidates = unique([activeModel].concat(cachedModels.length ? cachedModels : PREFERRED_MODELS)).slice(0, 6);
+
+  const ctrl = new AbortController();
+  S.abort = ctrl;
+  let lastError = null;
+
+  for (let ci = 0; ci < candidates.length; ci++) {
+    const model = candidates[ci];
+    const base = API_BASE + '/models/' + encodeURIComponent(model) + ':generateContent';
+    let modelUnavailable = false;
+    const authModes = ['header', 'query'];
+
+    for (let ai = 0; ai < authModes.length; ai++) {
+      if (modelUnavailable) break;
+      const auth = authModes[ai];
+      const jsonAttempts = opts.json === false ? [false] : [true, false];
+
+      for (let ji = 0; ji < jsonAttempts.length; ji++) {
+        const useJson = jsonAttempts[ji];
+        const url = auth === 'query' ? base + '?key=' + encodeURIComponent(key) : base;
+        const headers = { 'Content-Type': 'application/json' };
+        if (auth === 'header') headers['x-goog-api-key'] = key;
+
+        const generationConfig = {
+          temperature: opts.temperature != null ? opts.temperature : 0.4,
+          topP: opts.topP != null ? opts.topP : 0.95,
+          maxOutputTokens: opts.max_tokens != null ? opts.max_tokens : 8192
+        };
+        if (useJson) generationConfig.responseMimeType = 'application/json';
+
+        const body = {
+          contents: [{ parts: [{ text: String(prompt || '') }] }],
+          generationConfig
+        };
+
+        try {
+          const json = await rawFetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            headers,
+            body: JSON.stringify(body),
+            signal: ctrl.signal
+          });
+
+          if (S.model !== 'custom') S.model = model;
+          saveCfg();
+          updateConn();
+
+          const cand = json.candidates && json.candidates[0];
+          if (!cand) throw new Error('Gemini no devolvió candidatos válidos.');
+          if (cand.finishReason === 'MAX_TOKENS') throw new Error('Respuesta truncada por MAX_TOKENS. Reduce la profundidad o el ejercicio.');
+          const parts = cand.content && cand.content.parts ? cand.content.parts : [];
+          const text = parts.map(p => (p && p.text) ? p.text : '').join('');
+          if (!text.trim()) throw new Error('Gemini devolvió texto vacío.');
+          return text;
+        } catch (e) {
+          lastError = e;
+          if (e && e.name === 'AbortError') throw e;
+          const msg = String(e && e.message || '');
+          if (e && e.status === 404 && /model|NOT_FOUND|no longer available/i.test(msg)) {
+            log('Modelo ' + model + ' no disponible (404). Pasando al siguiente candidato...');
+            modelUnavailable = true;
+            break;
+          }
+          if (e && e.status === 400 && useJson && /responseMimeType|JSON/i.test(msg)) {
+            log('Modelo ' + model + ' rechazó responseMimeType JSON. Reintentando en modo texto...');
+            continue;
+          }
+          if (e && (e.status === 401 || e.status === 403 || e.status === 429)) {
+            throw new Error(friendlyError(e));
+          }
+          log('Reintento: model=' + model + ', auth=' + auth + ', json=' + useJson + ', err=' + msg);
+        }
+      }
+    }
+  }
+  throw new Error(friendlyError(lastError));
+}
+
+async function askJSON(prompt, opts = {}) {
+  const raw = await callGemini(prompt, Object.assign({ json: true }, opts));
+  return extractJSON(raw);
+}
+
+/* ============================================================
+   PROMPTS DEL ORQUESTADOR MATEMÁTICO
    ============================================================ */
 const SYSTEM_CORE = `Eres PRAXIS, un orquestador cognitivo experto en matemáticas avanzadas. Tu misión: convertir UN ejercicio matemático en una investigación profunda y rigurosa.
 
@@ -526,24 +866,25 @@ REGLAS ABSOLUTAS:
 - No inventes referencias: si no conoces una fuente concreta, describe el recurso genérico sin fabricar DOI/ISBN falsos.
 - Explica TODA la notación, lenguaje técnico y tecnicismos usados.`;
 
-function audienceInstr(a){
+function audienceInstr(a) {
   return {
-    doctor:`Audiencia: DOCTORES EN MATEMÁTICAS. Máximo rigor: enuncia hipótesis exactas, da demostraciones completas y formales, discute generalizaciones, casos límite, conexiones con estructuras avanzadas (categorías, espacios funcionales, dualidades) y señala dónde el argumento es óptimo o puede refinarse.`,
-    maestro:`Audiencia: MAESTROS DE MATEMÁTICAS. Rigor sólido pero orientado a la docencia: explica el PORQUÉ de cada paso, anticipa errores frecuentes de los estudiantes, ofrece interpretaciones intuitivas y sugerencias didácticas junto al formalismo.`,
-    licenciatura:`Audiencia: ESTUDIANTES DE LICENCIATURA EN MATEMÁTICAS. Razona cada paso con detalle pedagógico: no omitas justificaciones, define cada concepto nuevo en el momento que aparece, encadena la intuición con la formalización.`,
-    publico:`Audiencia: PÚBLICO GENERAL. Comienza con una analogía accesible, define toda la jerga en lenguaje llano, mantén el rigor pero prioriza la claridad y la motivación sobre el tecnicismo.`
+    doctor: `Audiencia: DOCTORES EN MATEMÁTICAS. Máximo rigor: enuncia hipótesis exactas, da demostraciones completas y formales, discute generalizaciones, casos límite, conexiones con estructuras avanzadas (categorías, espacios funcionales, dualidades) y señala dónde el argumento es óptimo o puede refinarse.`,
+    maestro: `Audiencia: MAESTROS DE MATEMÁTICAS. Rigor sólido pero orientado a la docencia: explica el PORQUÉ de cada paso, anticipa errores frecuentes de los estudiantes, ofrece interpretaciones intuitivas y sugerencias didácticas junto al formalismo.`,
+    licenciatura: `Audiencia: ESTUDIANTES DE LICENCIATURA EN MATEMÁTICAS. Razona cada paso con detalle pedagógico: no omitas justificaciones, define cada concepto nuevo en el momento que aparece, encadena la intuición con la formalización.`,
+    publico: `Audiencia: PÚBLICO GENERAL. Comienza con una analogía accesible, define toda la jerga en lenguaje llano, mantén el rigor pero prioriza la claridad y la motivación sobre el tecnicismo.`
   }[a] || '';
 }
-function depthInstr(d){
+
+function depthInstr(d) {
   return {
-    breve:`Profundidad BREVE: sé conciso pero completo; agrupa pasos cuando sea natural.`,
-    media:`Profundidad MEDIA: desarrollo detallado con la teoría esencial bien cubierta.`,
-    profunda:`Profundidad PROFUNDA: exhaustivo. Desglosa cada micro-paso, cubre TODO el marco teórico implicado (definiciones, teoremas, lemas, axiomas, reglas, métodos, herramientas) con sus enunciados y demostraciones cuando aporten.`
+    breve: `Profundidad BREVE: sé conciso pero completo; agrupa pasos cuando sea natural.`,
+    media: `Profundidad MEDIA: desarrollo detallado con la teoría esencial bien cubierta.`,
+    profunda: `Profundidad PROFUNDA: exhaustivo. Desglosa cada micro-paso, cubre TODO el marco teórico implicado (definiciones, teoremas, lemas, axiomas, reglas, métodos, herramientas) con sus enunciados y demostraciones cuando aporten.`
   }[d] || '';
 }
 
-function promptPlanner(userPrompt, files, aud, dep){
-  const fdesc = files.length ? `\n\nFUENTES ADJUNTAS (usa su contenido como contexto; no las inventes):\n${files.map(f=>`• [${f.kind}] ${f.name}${f.text?'\n'+f.text.slice(0,4000):''}`).join('\n')}` : '';
+function promptPlanner(userPrompt, files, aud, dep) {
+  const fdesc = files.length ? `\n\nFUENTES ADJUNTAS (usa su contenido como contexto; no las inventes):\n${files.map(f => `• [${f.kind}] ${f.name}${f.text ? '\n' + f.text.slice(0, 4000) : ''}`).join('\n')}` : '';
   return `${SYSTEM_CORE}
 
 FASE 1 — PLANIFICACIÓN. Analiza el ejercicio del usuario y diseña el plan maestro.
@@ -560,25 +901,25 @@ Devuelve JSON con EXACTAMENTE estas claves:
 {
   "titulo": "título descriptivo del problema",
   "area_principal": "rama matemática dominante",
-  "ramas": ["rama1","rama2", ...],
+  "ramas": ["rama1","rama2"],
   "objetivo": "qué se quiere demostrar/calcular/resolver",
   "nivel": "introductorio|intermedio|avanzado|investigación",
   "herramientas": ["nombre herramienta","uso"],
   "notacion": [{"symbolo":"\\\\LaTeX","significado":"explicación"}],
   "hipotesis": ["supuesto 1","supuesto 2"],
   "riesgos": ["posibles trampas o sutilezas del problema"],
-  "estimacion_pasos": número aproximado de pasos del desarrollo,
-  "agente_resolucion": "instrucción específica para el agente que resolverá este ejercicio",
-  "agente_teoria": "instrucción sobre qué ramas/temas teóricos extraer",
+  "estimacion_pasos": 5,
+  "agente_resolucion": "instrucción específica para resolver el ejercicio",
+  "agente_teoria": "instrucción sobre temas teóricos a extraer",
   "agente_figuras": "instrucción sobre qué visualizar",
-  "agente_investigacion": "instrucción sobre las líneas de investigación y generalización"
+  "agente_investigacion": "instrucción sobre generalizaciones"
 }`;
 }
 
-function promptResolver(plan, userPrompt, aud, dep){
+function promptResolver(plan, userPrompt, aud, dep) {
   return `${SYSTEM_CORE}
 
-FASE 2 — RESOLUCIÓN. Resuelve el ejercicio con TODOS los pasos del desarrollo, sin saltar ni resumir ninguno. Cada paso lleva título, el razonamiento en "html" (puede contener texto, listas, fórmulas $$...$$ y notación \\(...\\)), el LaTeX central y la herramienta/teorema usado.
+FASE 2 — RESOLUCIÓN. Resuelve el ejercicio con TODOS los pasos del desarrollo, sin saltar ni resumir ninguno. Cada paso lleva título, razonamiento en "html" (texto, fórmulas $$...$$ y notación \\(...\\)), el LaTeX central y la herramienta usada.
 
 PLAN MAESTRO:
 ${JSON.stringify(plan)}
@@ -593,24 +934,24 @@ ${depthInstr(dep)}
 
 Devuelve JSON:
 {
-  "enunciado_formal": "reescritura precisa del problema en lenguaje matemático (con LaTeX)",
+  "enunciado_formal": "reescritura precisa del problema en lenguaje matemático con LaTeX",
   "estrategia": "idea global de la solución",
   "pasos": [
-     {"titulo":"...","html":"desarrollo completo del paso con fórmulas $$...$$ y texto","latex":"fórmula central (LaTeX, escapado)","herramienta":"teorema/regla/propiedad usada"}
+     {"titulo":"...","html":"desarrollo completo con fórmulas $$...$$","latex":"fórmula central LaTeX escapada","herramienta":"teorema o regla usada"}
   ],
-  "resultado": "valor/expresión/final (LaTeX escapado)",
+  "resultado": "valor o expresión final en LaTeX escapado",
   "verificacion": "comprobación de consistencia del resultado",
-  "observaciones": "comentarios, casos especiales, optimalidad"
+  "observaciones": "comentarios y casos límite"
 }`;
 }
 
-function promptTheory(plan, resolver, userPrompt, aud, dep){
+function promptTheory(plan, resolver, userPrompt, aud, dep) {
   return `${SYSTEM_CORE}
 
-FASE 3 — MARCO TEÓRICO. Extrae de la solución TODA la teoría necesaria: definiciones, teoremas, lemas, corolarios, axiomas, proposiciones, reglas, métodos, técnicas y herramientas. Agrupa por RAMAS temáticas. Para cada ítem: nombre, tipo, enunciado/formulación (LaTeX), explicación con nomenclatura y tecnicismos aclarados, y DEMOSTRACIÓN completa cuando aporte (sin omitir pasos).
+FASE 3 — MARCO TEÓRICO. Extrae de la solución TODA la teoría necesaria: definiciones, teoremas, lemas, corolarios, axiomas, proposiciones, reglas, métodos y herramientas. Agrupa por RAMAS temáticas. Para cada ítem: nombre, tipo, enunciado/formulación (LaTeX), explicación con tecnicismos aclarados y DEMOSTRACIÓN completa cuando aporte.
 
 PLAN: ${JSON.stringify(plan)}
-RESOLUCIÓN (referencia): ${JSON.stringify({titulo:plan.titulo, ramas:plan.ramas, herramientas:plan.herramientas, resultado:resolver.resultado})}
+RESOLUCIÓN: ${JSON.stringify({ titulo: plan.titulo, ramas: plan.ramas, herramientas: plan.herramientas, resultado: resolver.resultado })}
 EJERCICIO: """${userPrompt}"""
 
 ${audienceInstr(aud)}
@@ -619,59 +960,53 @@ ${depthInstr(dep)}
 Devuelve JSON:
 {
   "ramas": [
-    {"nombre":"Rama temática","descripcion":"qué cubre esta rama",
+    {"nombre":"Rama temática","descripcion":"qué cubre",
      "items":[
         {"tipo":"definicion|teorema|lema|corolario|axioma|proposicion|regla|metodo|herramienta|tecnico|notacion",
          "nombre":"...",
-         "enunciado":"LaTeX escapado (o fórmula)",
-         "explicacion":"explicación detallada en prosa; aclara todo tecnicismo y notación",
-         "demostracion_html":"demostración completa con pasos y $$...$$ (cadena vacía si no aplica)"}
+         "enunciado":"LaTeX escapado",
+         "explicacion":"explicación detallada",
+         "demostracion_html":"demostración completa con pasos (cadena vacía si no aplica)"}
      ]}
   ],
-  "herramientas": [{"nombre":"...","uso":"para qué sirve aquí","fuente":"origen/clásico"}],
+  "herramientas": [{"nombre":"...","uso":"para qué sirve aquí","fuente":"origen"}],
   "glosario": [{"termino":"...","def":"..."}]
 }`;
 }
 
-function promptFigures(plan, resolver, theory, userPrompt){
+function promptFigures(plan, resolver, theory, userPrompt) {
   return `${SYSTEM_CORE}
 
-FASE 4 — FIGURAS. Diseña las ilustraciones que acompañan el ejercicio y la teoría. Para cada figura indica su tipo entre ESTOS tipos soportados:
-- "funcion": gráfica de y=f(x) (usa campos: expr, xmin, xmax, ymin, ymax, titulo, descripcion)
-- "vector_field": campo vectorial en el plano (campos: fx, fy, xmin, xmax, ymin, ymax, titulo, descripcion)
-- "parametrica": curva paramétrica (campos: fx, fy, tmin, tmax, titulo, descripcion)
-- "geometria": dibujo geométrico libre (campos: shapes[], titulo, descripcion). shapes son objetos:
-    {"kind":"circle","cx":0,"cy":0,"r":1},{"kind":"poly","pts":[[x,y],...],"fill":true},
-    {"kind":"line","x1":0,"y1":0,"x2":1,"y2":1},{"kind":"arrow","x1":0,"y1":0,"x2":1,"y2":1},
-    {"kind":"text","x":0,"y":0,"label":"A"}
-  Coordenadas en unidades matemáticas; el sistema las mapea automáticamente.
-- "diagrama": diagrama de flujo/cajas (campos: boxes:[{label,x,y}], arrows:[{from,to}], titulo, descripcion). x,y en 0..100.
-- "tabla": tabla de valores (campos: headers:[], rows:[[...]], titulo, descripcion)
-- "prosa": solo descripción (campos: titulo, descripcion, placement)
+FASE 4 — FIGURAS. Diseña las ilustraciones que acompañan el ejercicio y la teoría. Tipos soportados:
+- "funcion": y=f(x) (expr, xmin, xmax, ymin, ymax, titulo, descripcion)
+- "vector_field": plano (fx, fy, xmin, xmax, ymin, ymax, titulo, descripcion)
+- "parametrica": curva paramétrica (fx, fy, tmin, tmax, titulo, descripcion)
+- "geometria": dibujo geométrico (shapes[], titulo, descripcion). Shapes: circle, poly, line, arrow, text.
+- "diagrama": cajas y flechas (boxes:[{label,x,y}], arrows:[{from,to}], titulo, descripcion).
+- "tabla": tabla de valores (headers:[], rows:[[]], titulo, descripcion)
+- "prosa": descripción textual (titulo, descripcion)
 
-IMPORTANTE: usa SOLO funciones elementales de JavaScript en los campos expr/fx/fy (Math.sin, Math.exp, ** , /, +, -, sqrt, abs, log, etc.). NO uses ^ para potencias (usa ** ). Ejemplo expr: "Math.sin(x)*x".
+Usa SOLO funciones estándar de JavaScript en expr/fx/fy (Math.sin, Math.cos, Math.exp, **, etc.).
 
-PLAN: ${JSON.stringify({titulo:plan.titulo, ramas:plan.ramas})}
-RESOLUCIÓN: resultado = ${JSON.stringify(resolver.resultado)}
-TEORÍA (ramas): ${JSON.stringify((theory.ramas||[]).map(r=>r.nombre))}
+PLAN: ${JSON.stringify({ titulo: plan.titulo, ramas: plan.ramas })}
+RESULTADO: ${JSON.stringify(resolver.resultado)}
 
 Devuelve JSON:
 {
   "figuras":[
-     {"id":"f1","tipo":"funcion","titulo":"...","descripcion":"qué muestra y por qué importa","placement":"dónde insertarla en el informe", "expr":"...","xmin":-6.28,"xmax":6.28,"ymin":-2,"ymax":2}
+     {"id":"f1","tipo":"funcion","titulo":"...","descripcion":"...","expr":"Math.sin(x)","xmin":-6.28,"xmax":6.28,"ymin":-1.5,"ymax":1.5}
   ],
-  "notas_imagenes":"lista textual de qué imágenes con qué características deben realizarse para ilustrar ejercicio y teoría"
+  "notas_imagenes":"lista textual de qué imágenes con qué características deben realizarse"
 }`;
 }
 
-function promptResearch(plan, resolver, theory, userPrompt){
+function promptResearch(plan, resolver, theory, userPrompt) {
   return `${SYSTEM_CORE}
 
-FASE 5 — INVESTIGACIÓN Y EXTENSIÓN. Convierte el ejercicio en una línea de investigación: generalizaciones, problemas abiertos, aplicaciones, historia, literatura y recursos.
+FASE 5 — INVESTIGACIÓN Y EXTENSIÓN. Convierte el ejercicio en una línea de investigación: generalizaciones, problemas abiertos, aplicaciones, historia y literatura.
 
 PLAN: ${JSON.stringify(plan)}
 RESULTADO: ${JSON.stringify(resolver.resultado)}
-RAMAS TEÓRICAS: ${JSON.stringify((theory.ramas||[]).map(r=>r.nombre))}
 
 Devuelve JSON:
 {
@@ -679,103 +1014,43 @@ Devuelve JSON:
   "problemas_abiertos":[{"titulo":"...","planteamiento":"..."}],
   "aplicaciones":[{"campo":"...","descripcion":"..."}],
   "historia":[{"epoca":"...","hecho":"..."}],
-  "bibliografia":[{"autor":"...","titulo":"...","tipo":"libro|artículo|nota|curso","nota":"por qué es relevante"}],
-  "recursos":[{"nombre":"...","tipo":"libro|artículo|nota|software|curso","descripcion":"..."}],
+  "bibliografia":[{"autor":"...","titulo":"...","tipo":"libro|artículo|curso","nota":"relevancia"}],
+  "recursos":[{"nombre":"...","tipo":"libro|software|curso","descripcion":"..."}],
   "preguntas_siguientes":["..."]
 }`;
 }
 
-function promptReport(plan, resolver, theory, figures, research, userPrompt){
+function promptReport(plan, resolver, theory, figures, research, userPrompt) {
   return `${SYSTEM_CORE}
 
-FASE 6 — INFORME FINAL. Integra todo en un documento HTML coherente y legible (fragmento <body>, NO incluas <html>/<head>/<body>). Usa las clases CSS disponibles:
-- Bloques: <section class="blk">, títulos <h3 class="sec"><span class="num">§</span>Título</h3>, subtítulo <p class="sec-sub">...</p>
-- Texto: <div class="prose">...</div> ; listas <ul>/<ol> ; fórmulas en $$...$$ (display) y \\(...\\) (inline)
-- Callouts: <div class="callout co-def"><div class="lab">Definición</div>...</div> (clases: co-def, co-thm, co-proof, co-note, co-warn, co-ok)
-- Pasos: <div class="steps"><div class="step"><div class="idx"></div><div class="body"><div class="ttl">…</div><div class="prose">…</div></div></div></div>
-- Tablas: <div class="tbl-wrap"><table>…</table></div>
-- Figuras: <figure>…</figure> (las imágenes SVG ya se insertarán aparte; aquí puedes referenciarlas)
-- Código: <div class="codeblk"><div class="cb-h">Nombre<span class="lang">python</span></div><pre>…</pre></div>
+FASE 6 — INFORME FINAL. Integra todo en un documento HTML coherente (fragmento <body>, sin <html>/<head>/<body>). Usa clases:
+<section class="blk">, <h3 class="sec"><span class="num">§</span>Título</h3>, <div class="prose">, <div class="callout co-def">, <div class="steps">, <div class="tbl-wrap">.
 
-Escribe un informe que fluya: introducción y estrategia, desarrollo paso a paso, marco teórico integrado, resultados, verificación, extensiones y bibliografía. Sé riguroso y completo.
-
-DATOS DISPONIBLES:
+DATOS:
 Plan: ${JSON.stringify(plan)}
 Resolución: ${JSON.stringify(resolver)}
 Teoría: ${JSON.stringify(theory)}
 Investigación: ${JSON.stringify(research)}
 
 Devuelve JSON:
-{"html":"<section class=\"blk\">…todo el informe…</section>", "titulo_final":"título pulido del documento"}`;
+{"html":"<section class=\"blk\">...todo el informe...</section>", "titulo_final":"título pulido"}`;
 }
 
-function promptMd(plan, resolver, theory, figures, research){
+function promptMd(plan, resolver, theory, figures, research) {
   return `${SYSTEM_CORE}
 
-FASE 7 — MARKDOWN EDITABLE. Genera un documento Markdown listo para procesar en Word (ecuaciones editables). Reglas de formato:
-- Negritas **texto**, cursivas *texto*, encabezados # ## ###
-- Imágenes: ![descripción](URL_o_placeholder)
-- LaTeX: display con $$ ... $$ en su propia línea, inline con \\( ... \\)
-- Tablas con sintaxis Markdown | a | b |
-- Listas numeradas y con viñetas.
+FASE 7 — MARKDOWN EDITABLE. Genera un documento Markdown completo listo para Word (ecuaciones editables con $$ display e \\( inline).
 
-Convierte el contenido en un informe estructurado y completo.
-
-Plan: ${JSON.stringify({titulo:plan.titulo, ramas:plan.ramas})}
-Resolución (pasos/resultado): ${JSON.stringify({estrategia:resolver.estrategia, resultado:resolver.resultado, verificacion:resolver.verificacion})}
-Teoría (ramas e ítems): ${JSON.stringify(theory.ramas)}
-Investigación: ${JSON.stringify({generalizaciones:research.generalizaciones, bibliografia:research.bibliografia})}
+Plan: ${JSON.stringify({ titulo: plan.titulo, ramas: plan.ramas })}
+Resolución: ${JSON.stringify({ estrategia: resolver.estrategia, resultado: resolver.resultado, verificacion: resolver.verificacion })}
+Teoría: ${JSON.stringify(theory.ramas)}
+Investigación: ${JSON.stringify({ generalizaciones: research.generalizaciones, bibliografia: research.bibliografia })}
 
 Devuelve JSON: {"markdown":"contenido markdown completo"}`;
 }
 
 /* ============================================================
-   MOTOR DE API (GEMINI)
-   ============================================================ */
-async function callGemini(prompt, opts={}){
-  if(!S.key) throw new Error('Falta la API key de Gemini.');
-  const model = S.model==='custom' ? (S.customModel||'gemini-2.0-flash-exp') : S.model;
-  const url = `${BASE_URL}${model}:generateContent?key=${S.key}`;
-  
-  const body = {
-    contents: [{ parts: [{ text: prompt }] }],
-    generationConfig: {
-      temperature: opts.temperature ?? 0.4,
-      topP: 0.9,
-      maxOutputTokens: opts.max_tokens ?? 8192,
-      responseMimeType: "application/json" // Fuerza salida JSON limpia
-    }
-  };
-
-  const ctrl = new AbortController();
-  S.abort = ctrl;
-  
-  const res = await fetch(url, {
-    method: 'POST',
-    signal: ctrl.signal,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-
-  if(!res.ok){
-    let msg = res.status+' '+res.statusText;
-    try{ const j=await res.json(); msg = (j.error&&j.error.message)||JSON.stringify(j).slice(0,300); }catch(e){}
-    throw new Error('Gemini API '+msg);
-  }
-  
-  const j = await res.json();
-  const txt = j.candidates?.[0]?.content?.parts?.[0]?.text;
-  if(!txt) throw new Error('Respuesta sin contenido de Gemini.');
-  return txt;
-}
-
-async function askJSON(systemUser, opts={}){
-  const raw = await callGemini(systemUser, opts);
-  return extractJSON(raw);
-}
-
-/* ============================================================
-   PIPELINE UI (Igual que antes, solo cambia el motor)
+   PIPELINE UI & AGENTES
    ============================================================ */
 const ICONS = {
   brain:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3a3 3 0 0 0-3 3 3 3 0 0 0-1 5 3 3 0 0 0 2 5 3 3 0 0 0 5 1V4a1 1 0 0 0-1-1z"/><path d="M15 3a3 3 0 0 1 3 3 3 3 0 0 1 1 5 3 3 0 0 1-2 5 3 3 0 0 1-5 1"/></svg>',
@@ -786,21 +1061,22 @@ const ICONS = {
   doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l4 4v16H6z"/><path d="M14 2v5h5"/><path d="M9 13h6M9 17h6"/></svg>',
   md:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 15v-4l2 2 2-2v4M16 9v4M14 12l2 2 2-2"/></svg>'
 };
+
 const STAGES = [
-  {id:'plan', name:'Planificador Maestro', role:'Arquitecto del análisis', icon:'brain'},
-  {id:'resolve', name:'Agente de Resolución', role:'Desarrollo paso a paso', icon:'pen'},
-  {id:'theory', name:'Agente Teórico', role:'Marco teórico riguroso', icon:'book'},
-  {id:'figures', name:'Agente de Visualización', role:'Figuras e ilustraciones', icon:'chart'},
-  {id:'research', name:'Agente de Investigación', role:'Extensión y literatura', icon:'search'},
-  {id:'report', name:'Ensamblador de Informe', role:'Documento final', icon:'doc'},
-  {id:'md', name:'Agente Markdown', role:'Exportación editable', icon:'md'}
+  { id: 'plan', name: 'Planificador Maestro', role: 'Arquitecto del análisis', icon: 'brain' },
+  { id: 'resolve', name: 'Agente de Resolución', role: 'Desarrollo paso a paso', icon: 'pen' },
+  { id: 'theory', name: 'Agente Teórico', role: 'Marco teórico riguroso', icon: 'book' },
+  { id: 'figures', name: 'Agente de Visualización', role: 'Figuras e ilustraciones', icon: 'chart' },
+  { id: 'research', name: 'Agente de Investigación', role: 'Extensión y literatura', icon: 'search' },
+  { id: 'report', name: 'Ensamblador de Informe', role: 'Documento final', icon: 'doc' },
+  { id: 'md', name: 'Agente Markdown', role: 'Exportación editable', icon: 'md' }
 ];
 let stageEls = {};
 
-function renderPipeline(){
+function renderPipeline() {
   const wrap = $('#stageWrap');
   wrap.innerHTML = `<div class="pipe"><div class="pipe-track"><div class="pipe-fill" id="pipeFill"></div></div>
-    ${STAGES.map(s=>`
+    ${STAGES.map(s => `
     <div class="stage" id="st-${s.id}">
       <div class="node">${ICONS[s.icon]}</div>
       <div class="meta">
@@ -811,275 +1087,303 @@ function renderPipeline(){
   </div>
   <div id="reportHost"></div>`;
   stageEls = {};
-  STAGES.forEach(s=> stageEls[s.id]=$('#st-'+s.id));
+  STAGES.forEach(s => stageEls[s.id] = $('#st-' + s.id));
 }
-function setStage(id, state, msg){
-  const el = stageEls[id]; if(!el) return;
-  el.classList.remove('running','done','error');
-  if(state!=='idle') el.classList.add(state);
-  const st = $('#ss-'+id);
-  if(state==='running') st.innerHTML = `<span class="spinner"></span>${esc(msg||'procesando…')}`;
-  else if(state==='done') st.innerHTML = `<span class="badge">✓ listo</span> ${esc(msg||'')}`;
-  else if(state==='error') st.innerHTML = `<span class="badge" style="background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)">✕ error</span> ${esc(msg||'')}`;
+
+function setStage(id, state, msg) {
+  const el = stageEls[id]; if (!el) return;
+  el.classList.remove('running', 'done', 'error');
+  if (state !== 'idle') el.classList.add(state);
+  const st = $('#ss-' + id);
+  if (state === 'running') st.innerHTML = `<span class="spinner"></span>${esc(msg || 'procesando…')}`;
+  else if (state === 'done') st.innerHTML = `<span class="badge">✓ listo</span> ${esc(msg || '')}`;
+  else if (state === 'error') st.innerHTML = `<span class="badge" style="background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)">✕ error</span> ${esc(msg || '')}`;
   else st.innerHTML = `<span class="st-idle">en espera</span>`;
-  const done = STAGES.filter(s=>stageEls[s.id].classList.contains('done')).length;
-  const pf = $('#pipeFill'); if(pf) pf.style.height = Math.round(done/STAGES.length*100)+'%';
+  const done = STAGES.filter(s => stageEls[s.id] && stageEls[s.id].classList.contains('done')).length;
+  const pf = $('#pipeFill'); if (pf) pf.style.height = Math.round(done / STAGES.length * 100) + '%';
 }
-function setStat(cls,txt){ const p=$('#statPill'); p.className='pill '+cls; $('#statTxt').textContent=txt; }
+
+function setStat(cls, txt) {
+  const p = $('#statPill');
+  p.className = 'pill ' + cls;
+  $('#statTxt').textContent = txt;
+}
 
 /* ============================================================
-   RENDER DEL INFORME (Igual que antes)
+   RENDER DEL INFORME
    ============================================================ */
 const BRANCH_COLORS = ['#1a73e8','#d93025','#188038','#f9ab00','#9334e6','#12b5cb','#e37400','#5f6368'];
-const TYPE_ICON = {definicion:'≝',teorema:'∴',lema:'⇒',corolario:'∵',axioma:'⊢',proposicion:'∎',regla:'⚖',metodo:'⚙',herramienta:'⌘',tecnico:'✦',notacion:'𝑥'};
 
-function renderCallout(type, name, bodyHtml){
-  const map={definicion:['co-def','Definición'],teorema:['co-thm','Teorema'],lema:['co-thm','Lema'],corolario:['co-thm','Corolario'],axioma:['co-note','Axioma'],proposicion:['co-def','Proposición'],regla:['co-note','Regla'],metodo:['co-ok','Método'],herramienta:['co-ok','Herramienta'],tecnico:['co-note','Tecnicismo'],notacion:['co-note','Notación']};
-  const [cls,lab]=map[type]||['co-note',(type||'Nota')];
-  return `<div class="callout ${cls}"><div class="lab">${lab}${name?' · '+esc(name):''}</div>${bodyHtml}</div>`;
-}
-function renderSteps(pasos){
-  if(!pasos||!pasos.length) return '<p class="prose">Sin pasos.</p>';
-  return `<div class="steps">${pasos.map(p=>`
+function renderSteps(pasos) {
+  if (!pasos || !pasos.length) return '<p class="prose">Sin pasos registrados.</p>';
+  return `<div class="steps">${pasos.map(p => `
     <div class="step"><div class="idx"></div><div class="body">
-      <div class="ttl">${esc(p.titulo||'')}</div>
-      <div class="prose">${p.html||''}</div>
-      ${p.latex?`<div class="form">$${'\\('+p.latex+'\\)'}</div>`:''}
-      ${p.herramienta?`<div class="tool">↳ ${esc(p.herramienta)}</div>`:''}
+      <div class="ttl">${esc(p.titulo || '')}</div>
+      <div class="prose">${p.html || ''}</div>
+      ${p.latex ? `<div class="form">\\(${p.latex}\\)</div>` : ''}
+      ${p.herramienta ? `<div class="tool">↳ ${esc(p.herramienta)}</div>` : ''}
     </div></div>`).join('')}</div>`;
 }
-function renderBranches(ramas){
-  if(!ramas||!ramas.length) return '';
-  return `<div class="branches">${ramas.map((r,i)=>{
-    const col=BRANCH_COLORS[i%BRANCH_COLORS.length];
-    const items=(r.items||[]).map(it=>{
-      const demo = it.demostracion_html?`<div class="demo"><b>Demostración.</b> ${it.demostracion_html}</div>`:'';
-      const form = it.enunciado?`<div class="form">$$${it.enunciado}$$</div>`:'';
+
+function renderBranches(ramas) {
+  if (!ramas || !ramas.length) return '';
+  return `<div class="branches">${ramas.map((r, i) => {
+    const col = BRANCH_COLORS[i % BRANCH_COLORS.length];
+    const items = (r.items || []).map(it => {
+      const demo = it.demostracion_html ? `<div class="demo"><b>Demostración.</b> ${it.demostracion_html}</div>` : '';
+      const form = it.enunciado ? `<div class="form">$$${it.enunciado}$$</div>` : '';
       return `<div class="item">
-        <div class="ih"><span class="tag" style="background:color-mix(in srgb,${col} 16%,transparent);color:${col}">${esc(it.tipo||'')}</span><span class="it">${esc(it.nombre||'')}</span></div>
-        <div class="id">${it.explicacion||''}</div>
+        <div class="ih"><span class="tag" style="background:color-mix(in srgb,${col} 16%,transparent);color:${col}">${esc(it.tipo || '')}</span><span class="it">${esc(it.nombre || '')}</span></div>
+        <div class="id">${it.explicacion || ''}</div>
         ${form}${demo}
       </div>`;
     }).join('');
     return `<div class="card">
-      <div class="ch"><span class="ic" style="background:${col}">${ICONS.book}</span><span class="nm">${esc(r.nombre)}</span><span class="cnt">${(r.items||[]).length} ítems</span></div>
-      <div class="cb">${r.descripcion?`<p class="prose" style="font-size:13px;color:var(--muted);margin:6px 0 2px">${esc(r.descripcion)}</p>`:''}${items}</div>
+      <div class="ch"><span class="ic" style="background:${col}">${ICONS.book}</span><span class="nm">${esc(r.nombre)}</span><span class="cnt">${(r.items || []).length} ítems</span></div>
+      <div class="cb">${r.descripcion ? `<p class="prose" style="font-size:13px;color:var(--muted);margin:6px 0 2px">${esc(r.descripcion)}</p>` : ''}${items}</div>
     </div>`;
   }).join('')}</div>`;
 }
-function renderTable(headers,rows){
-  if(!headers||!rows) return '';
-  return `<div class="tbl-wrap"><table><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${typeof c==='string'&&/[\\$]/.test(c)?c:esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+
+function renderTable(headers, rows) {
+  if (!headers || !rows) return '';
+  return `<div class="tbl-wrap"><table><thead><tr>${headers.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${typeof c === 'string' && /[\\$]/.test(c) ? c : esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 }
-function renderCode(lang,name,code){
-  return `<div class="codeblk"><div class="cb-h">${esc(name||'Código')}<span class="lang">${esc(lang||'')}</span></div><pre>${esc(code||'')}</pre></div>`;
-}
-function renderResearch(rs){
-  if(!rs) return '';
-  const sec=(title,inner)=> inner?`<div class="rcard"><div class="rh"><span class="ic">◆</span>${title}</div><div class="rb">${inner}</div></div>`:'';
-  const cards=[
-    sec('Generalizaciones', (rs.generalizaciones||[]).map(g=>`<h4>${esc(g.titulo)}</h4><div class="prose">${g.desarrollo||''}</div>`).join('')),
-    sec('Problemas abiertos', (rs.problemas_abiertos||[]).map(p=>`<b>${esc(p.titulo)}</b><br>${p.planteamiento||''}`).join('<hr style="border:none;border-top:1px dashed var(--line);margin:8px 0">')),
-    sec('Aplicaciones', `<ul>${(rs.aplicaciones||[]).map(a=>`<li><b>${esc(a.campo)}:</b> ${a.descripcion||''}</li>`).join('')}</ul>`),
-    sec('Historia', `<ul>${(rs.historia||[]).map(h=>`<li><b>${esc(h.epoca)}:</b> ${h.hecho||''}</li>`).join('')}</ul>`),
-    sec('Bibliografía', `<ul>${(rs.bibliografia||[]).map(b=>`<li>${esc(b.autor||'')} — <i>${esc(b.titulo||'')}</i> <span class="tag">${esc(b.tipo||'')}</span><br><span style="color:var(--muted);font-size:12px">${b.nota||''}</span></li>`).join('')}</ul>`),
-    sec('Recursos', `<ul>${(rs.recursos||[]).map(r=>`<li><b>${esc(r.nombre)}</b> <span class="tag">${esc(r.tipo||'')}</span><br>${r.descripcion||''}</li>`).join('')}</ul>`),
-    sec('Preguntas siguientes', `<ul>${(rs.preguntas_siguientes||[]).map(q=>`<li>${q}</li>`).join('')}</ul>`)
+
+function renderResearch(rs) {
+  if (!rs) return '';
+  const sec = (title, inner) => inner ? `<div class="rcard"><div class="rh"><span class="ic">◆</span>${title}</div><div class="rb">${inner}</div></div>` : '';
+  const cards = [
+    sec('Generalizaciones', (rs.generalizaciones || []).map(g => `<h4>${esc(g.titulo)}</h4><div class="prose">${g.desarrollo || ''}</div>`).join('')),
+    sec('Problemas abiertos', (rs.problemas_abiertos || []).map(p => `<b>${esc(p.titulo)}</b><br>${p.planteamiento || ''}`).join('<hr style="border:none;border-top:1px dashed var(--line);margin:8px 0">')),
+    sec('Aplicaciones', `<ul>${(rs.aplicaciones || []).map(a => `<li><b>${esc(a.campo)}:</b> ${a.descripcion || ''}</li>`).join('')}</ul>`),
+    sec('Historia', `<ul>${(rs.historia || []).map(h => `<li><b>${esc(h.epoca)}:</b> ${h.hecho || ''}</li>`).join('')}</ul>`),
+    sec('Bibliografía', `<ul>${(rs.bibliografia || []).map(b => `<li>${esc(b.autor || '')} — <i>${esc(b.titulo || '')}</i> <span class="tag">${esc(b.tipo || '')}</span><br><span style="color:var(--muted);font-size:12px">${b.nota || ''}</span></li>`).join('')}</ul>`),
+    sec('Recursos', `<ul>${(rs.recursos || []).map(r => `<li><b>${esc(r.nombre)}</b> <span class="tag">${esc(r.tipo || '')}</span><br>${r.descripcion || ''}</li>`).join('')}</ul>`),
+    sec('Preguntas siguientes', `<ul>${(rs.preguntas_siguientes || []).map(q => `<li>${q}</li>`).join('')}</ul>`)
   ].filter(Boolean).join('');
   return `<div class="research">${cards}</div>`;
 }
 
 /* ============================================================
-   GENERADORES DE FIGURAS (SVG) (Igual que antes)
+   GENERADOR DE FIGURAS SVG MATEMÁTICAS
    ============================================================ */
-function compileExpr(src){
-  const s=String(src||'').trim();
-  if(!s) return null;
-  if(/[;{}]|document|window|fetch|eval|Function|require|import|=>/.test(s)) return null;
-  try{
-    const f=new Function('x','t','Math','return ('+s+');');
-    const test=f(0.5,0.5,Math); 
-    return (x,t)=>{ try{ const v=f(x,t===undefined?x:t,Math); return (typeof v==='number'&&isFinite(v))?v:null; }catch(e){ return null; } };
-  }catch(e){ return null; }
+function compileExpr(src) {
+  const s = String(src || '').trim();
+  if (!s) return null;
+  if (/[;{}]|document|window|fetch|eval|Function|require|import|=>/.test(s)) return null;
+  try {
+    const f = new Function('x', 't', 'Math', 'return (' + s + ');');
+    f(0.5, 0.5, Math);
+    return (x, t) => { try { const v = f(x, t === undefined ? x : t, Math); return (typeof v === 'number' && isFinite(v)) ? v : null; } catch (e) { return null; } };
+  } catch (e) { return null; }
 }
-function niceTicks(min,max,n=6){
-  const span=max-min||1, step0=span/n, mag=Math.pow(10,Math.floor(Math.log10(step0))), norm=step0/mag;
-  const step=(norm<1.5?1:norm<3?2:norm<7?5:10)*mag;
-  const start=Math.ceil(min/step)*step, out=[];
-  for(let v=start; v<=max+step*1e-6; v+=step) out.push(+v.toFixed(10));
+
+function niceTicks(min, max, n = 6) {
+  const span = max - min || 1, step0 = span / n, mag = Math.pow(10,Math.floor(Math.log10(step0))), norm = step0 / mag;
+  const step = (norm < 1.5 ? 1 : norm < 3 ? 2 : norm < 7 ? 5 : 10) * mag;
+  const start = Math.ceil(min / step) * step, out = [];
+  for (let v = start; v <= max + step * 1e-6; v += step) out.push(+v.toFixed(10));
   return out;
 }
-function fmtNum(v){ if(Math.abs(v)<1e-9)return '0'; if(Math.abs(v)>=1000||(Math.abs(v)<0.01))return v.toExponential(1); return (+v.toFixed(3)).toString(); }
-function axesSVG(W,H,pad,xmin,xmax,ymin,ymax,opts={}){
-  const iw=W-2*pad, ih=H-2*pad;
-  const sx=x=> pad + (x-xmin)/(xmax-xmin)*iw;
-  const sy=y=> pad + (ymax-y)/(ymax-ymin)*ih;
-  let g='';
-  g+=`<rect x="${pad}" y="${pad}" width="${iw}" height="${ih}" fill="var(--paper-2)" stroke="var(--line)" rx="6"/>`;
-  const xt=niceTicks(xmin,xmax), yt=niceTicks(ymin,ymax);
-  xt.forEach(x=>{ g+=`<line x1="${sx(x)}" y1="${pad}" x2="${sx(x)}" y2="${pad+ih}" stroke="var(--line-2)" stroke-width="1"/>`; });
-  yt.forEach(y=>{ g+=`<line x1="${pad}" y1="${sy(y)}" x2="${pad+iw}" y2="${sy(y)}" stroke="var(--line-2)" stroke-width="1"/>`; });
-  if(ymin<0&&ymax>0) g+=`<line x1="${pad}" y1="${sy(0)}" x2="${pad+iw}" y2="${sy(0)}" stroke="var(--ink-2)" stroke-width="1.4"/>`;
-  if(xmin<0&&xmax>0) g+=`<line x1="${sx(0)}" y1="${pad}" x2="${sx(0)}" y2="${pad+ih}" stroke="var(--ink-2)" stroke-width="1.4"/>`;
-  xt.forEach(x=>{ g+=`<text x="${sx(x)}" y="${pad+ih+14}" font-size="10" fill="var(--muted)" text-anchor="middle" font-family="var(--mono)">${fmtNum(x)}</text>`; });
-  yt.forEach(y=>{ g+=`<text x="${pad-6}" y="${sy(y)+3}" font-size="10" fill="var(--muted)" text-anchor="end" font-family="var(--mono)">${fmtNum(y)}</text>`; });
-  return {g,sx,sy,iw,ih};
+
+function fmtNum(v) {
+  if (Math.abs(v) < 1e-9) return '0';
+  if (Math.abs(v) >= 1000 || Math.abs(v) < 0.01) return v.toExponential(1);
+  return (+v.toFixed(3)).toString();
 }
-function figFunction(f){
-  const W=520,H=390,pad=42;
-  const xmin=+f.xmin??-6, xmax=+f.xmax??6, ymin=+f.ymin??-3, ymax=+f.ymax??3;
-  const fn=compileExpr(f.expr);
-  const {g,sx,sy}=axesSVG(W,H,pad,xmin,xmax,ymin,ymax);
-  let path='', started=false;
-  const N=360;
-  if(fn){
-    for(let i=0;i<=N;i++){
-      const x=xmin+(xmax-xmin)*i/N, y=fn(x);
-      if(y==null||y<ymin-(ymax-ymin)||y>ymax+(ymax-ymin)){ started=false; continue; }
-      const px=sx(x), py=sy(Math.max(ymin,Math.min(ymax,y)));
-      path += (started? ' L ':' M ')+px.toFixed(1)+' '+py.toFixed(1);
-      started=true;
+
+function axesSVG(W, H, pad, xmin, xmax, ymin, ymax) {
+  const iw = W - 2 * pad, ih = H - 2 * pad;
+  const sx = x => pad + (x - xmin) / (xmax - xmin) * iw;
+  const sy = y => pad + (ymax - y) / (ymax - ymin) * ih;
+  let g = `<rect x="${pad}" y="${pad}" width="${iw}" height="${ih}" fill="var(--paper-2)" stroke="var(--line)" rx="6"/>`;
+  const xt = niceTicks(xmin, xmax), yt = niceTicks(ymin, ymax);
+  xt.forEach(x => { g += `<line x1="${sx(x)}" y1="${pad}" x2="${sx(x)}" y2="${pad + ih}" stroke="var(--line-2)" stroke-width="1"/>`; });
+  yt.forEach(y => { g += `<line x1="${pad}" y1="${sy(y)}" x2="${pad + iw}" y2="${sy(y)}" stroke="var(--line-2)" stroke-width="1"/>`; });
+  if (ymin < 0 && ymax > 0) g += `<line x1="${pad}" y1="${sy(0)}" x2="${pad + iw}" y2="${sy(0)}" stroke="var(--ink-2)" stroke-width="1.4"/>`;
+  if (xmin < 0 && xmax > 0) g += `<line x1="${sx(0)}" y1="${pad}" x2="${sx(0)}" y2="${pad + ih}" stroke="var(--ink-2)" stroke-width="1.4"/>`;
+  xt.forEach(x => { g += `<text x="${sx(x)}" y="${pad + ih + 14}" font-size="10" fill="var(--muted)" text-anchor="middle" font-family="var(--mono)">${fmtNum(x)}</text>`; });
+  yt.forEach(y => { g += `<text x="${pad - 6}" y="${sy(y) + 3}" font-size="10" fill="var(--muted)" text-anchor="end" font-family="var(--mono)">${fmtNum(y)}</text>`; });
+  return { g, sx, sy, iw, ih };
+}
+
+function figFunction(f) {
+  const W = 520, H = 390, pad = 42;
+  const xmin = +f.xmin ?? -6, xmax = +f.xmax ?? 6, ymin = +f.ymin ?? -3, ymax = +f.ymax ?? 3;
+  const fn = compileExpr(f.expr);
+  const { g, sx, sy } = axesSVG(W, H, pad, xmin, xmax, ymin, ymax);
+  let path = '', started = false;
+  const N = 360;
+  if (fn) {
+    for (let i = 0; i <= N; i++) {
+      const x = xmin + (xmax - xmin) * i / N, y = fn(x);
+      if (y == null || y < ymin - (ymax - ymin) || y > ymax + (ymax - ymin)) { started = false; continue; }
+      const px = sx(x), py = sy(Math.max(ymin, Math.min(ymax, y)));
+      path += (started ? ' L ' : ' M ') + px.toFixed(1) + ' ' + py.toFixed(1);
+      started = true;
     }
   }
-  const out=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}<path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>${fn?'':`<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="var(--muted)" font-size="13">expresión no evaluable</text>`}</svg>`;
-  return out;
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}<path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>${fn ? '' : `<text x="${W / 2}" y="${H / 2}" text-anchor="middle" fill="var(--muted)" font-size="13">expresión no evaluable</text>`}</svg>`;
 }
-function figVectorField(f){
-  const W=520,H=390,pad=40;
-  const xmin=+f.xmin??-3,xmax=+f.xmax??3,ymin=+f.ymin??-3,ymax=+f.ymax??3;
-  const fx=compileExpr(f.fx), fy=compileExpr(f.fy);
-  const {g,sx,sy}=axesSVG(W,H,pad,xmin,xmax,ymin,ymax);
-  let arr=''; const cols=13,rows=9;
-  for(let i=0;i<=cols;i++)for(let j=0;j<=rows;j++){
-    const x=xmin+(xmax-xmin)*i/cols, y=ymin+(ymax-ymin)*j/rows;
-    const ux=fx?fx(x,y):null, uy=fy?fy(x,y):null;
-    if(ux==null||uy==null)continue;
-    const m=Math.hypot(ux,uy)||1e-9, sc=0.62/Math.max(1,m);
-    const ex=x+ux*sc, ey=y+uy*sc;
-    const x1=sx(x),y1=sy(y),x2=sx(ex),y2=sy(ey);
-    const ang=Math.atan2(y2-y1,x2-x1), hl=4;
-    arr+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--brand)" stroke-width="1.3"/>`;
-    arr+=`<polygon points="${x2},${y2} ${x2-hl*Math.cos(ang-0.5)},${y2-hl*Math.sin(ang-0.5)} ${x2-hl*Math.cos(ang+0.5)},${y2-hl*Math.sin(ang+0.5)}" fill="var(--brand)"/>`;
+
+function figVectorField(f) {
+  const W = 520, H = 390, pad = 40;
+  const xmin = +f.xmin ?? -3, xmax = +f.xmax ?? 3, ymin = +f.ymin ?? -3, ymax = +f.ymax ?? 3;
+  const fx = compileExpr(f.fx), fy = compileExpr(f.fy);
+  const { g, sx, sy } = axesSVG(W, H, pad, xmin, xmax, ymin, ymax);
+  let arr = ''; const cols = 13, rows = 9;
+  for (let i = 0; i <= cols; i++) for (let j = 0; j <= rows; j++) {
+    const x = xmin + (xmax - xmin) * i / cols, y = ymin + (ymax - ymin) * j / rows;
+    const ux = fx ? fx(x, y) : null, uy = fy ? fy(x, y) : null;
+    if (ux == null || uy == null) continue;
+    const m = Math.hypot(ux, uy) || 1e-9, sc = 0.62 / Math.max(1, m);
+    const ex = x + ux * sc, ey = y + uy * sc;
+    const x1 = sx(x), y1 = sy(y), x2 = sx(ex), y2 = sy(ey);
+    const ang = Math.atan2(y2 - y1, x2 - x1), hl = 4;
+    arr += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--brand)" stroke-width="1.3"/>`;
+    arr += `<polygon points="${x2},${y2} ${x2-hl*Math.cos(ang-0.5)},${y2-hl*Math.sin(ang-0.5)} ${x2-hl*Math.cos(ang+0.5)},${y2-hl*Math.sin(ang+0.5)}" fill="var(--brand)"/>`;
   }
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}${arr}</svg>`;
 }
-function figParametric(f){
-  const W=520,H=390,pad=42;
-  const tmin=+f.tmin??0,tmax=+f.tmax??(2*Math.PI);
-  const fx=compileExpr(f.fx), fy=compileExpr(f.fy);
-  let xs=[],ys=[];
-  if(fx&&fy)for(let i=0;i<=400;i++){const t=tmin+(tmax-tmin)*i/400;const X=fx(t),Y=fy(t);if(X!=null&&Y!=null){xs.push(X);ys.push(Y);}}
-  const pad2=v=>{const m=Math.max(...v,1)-Math.min(...v,0);return [Math.min(...v)-m*.1,Math.max(...v)+m*.1];};
-  const [xmin,xmax]=xs.length?pad2(xs):[-3,3], [ymin,ymax]=ys.length?pad2(ys):[-3,3];
-  const {g,sx,sy}=axesSVG(W,H,pad,xmin,xmax,ymin,ymax);
-  let path='',started=false;
-  if(fx&&fy)for(let i=0;i<=600;i++){const t=tmin+(tmax-tmin)*i/600;const X=fx(t),Y=fy(t);if(X==null||Y==null){started=false;continue;}const px=sx(X),py=sy(Y);path+=(started?' L ':' M ')+px.toFixed(1)+' '+py.toFixed(1);started=true;}
+
+function figParametric(f) {
+  const W = 520, H = 390, pad = 42;
+  const tmin = +f.tmin ?? 0, tmax = +f.tmax ?? (2 * Math.PI);
+  const fx = compileExpr(f.fx), fy = compileExpr(f.fy);
+  let xs = [], ys = [];
+  if (fx && fy) for (let i = 0; i <= 400; i++) {
+    const t = tmin + (tmax - tmin) * i / 400;
+    const X = fx(t), Y = fy(t);
+    if (X != null && Y != null) { xs.push(X); ys.push(Y); }
+  }
+  const pad2 = v => { const m = Math.max(...v, 1) - Math.min(...v, 0); return [Math.min(...v) - m * .1, Math.max(...v) + m * .1]; };
+  const [xmin, xmax] = xs.length ? pad2(xs) : [-3, 3], [ymin, ymax] = ys.length ? pad2(ys) : [-3, 3];
+  const { g, sx, sy } = axesSVG(W, H, pad, xmin, xmax, ymin, ymax);
+  let path = '', started = false;
+  if (fx && fy) for (let i = 0; i <= 600; i++) {
+    const t = tmin + (tmax - tmin) * i / 600;
+    const X = fx(t), Y = fy(t);
+    if (X == null || Y == null) { started = false; continue; }
+    const px = sx(X), py = sy(Y);
+    path += (started ? ' L ' : ' M ') + px.toFixed(1) + ' ' + py.toFixed(1);
+    started = true;
+  }
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}<path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round"/></svg>`;
 }
-function figGeometry(f){
-  const W=520,H=390,pad=30;
-  const shapes=f.shapes||[];
-  let pts=[];
-  shapes.forEach(s=>{ if(s.kind==='circle'){pts.push([s.cx-s.r,s.cy-s.r],[s.cx+s.r,s.cy+s.r]);} else if(s.kind==='poly'||s.kind==='line'||s.kind==='arrow'){ (s.pts||[[s.x1,s.y1],[s.x2,s.y2]]).forEach(p=>pts.push(p)); if(s.pts==null&&s.x1!=null){pts.push([s.x1,s.y1],[s.x2,s.y2]);} } else if(s.kind==='text'){pts.push([s.x,s.y]);} });
-  if(!pts.length)pts=[[0,0],[1,1]];
-  const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
-  let xmin=Math.min(...xs),xmax=Math.max(...xs),ymin=Math.min(...ys),ymax=Math.max(...ys);
-  const mx=(xmax-xmin)||1,my=(ymax-ymin)||1; xmin-=mx*.12;xmax+=mx*.12;ymin-=my*.12;ymax+=my*.12;
-  const iw=W-2*pad,ih=H-2*pad;
-  const sx=x=>pad+(x-xmin)/(xmax-xmin)*iw, sy=y=>pad+(ymax-y)/(ymax-ymin)*ih;
-  let g=`<rect x="${pad}" y="${pad}" width="${iw}" height="${ih}" fill="var(--paper-2)" stroke="var(--line)" rx="6"/>`;
-  shapes.forEach(s=>{
-    if(s.kind==='circle'){ g+=`<circle cx="${sx(s.cx)}" cy="${sy(s.cy)}" r="${(s.r/(xmax-xmin))*iw}" fill="none" stroke="var(--brand)" stroke-width="2"/>`; }
-    else if(s.kind==='poly'){ const p=(s.pts||[]).map(q=>`${sx(q[0])},${sy(q[1])}`).join(' '); g+=`<polygon points="${p}" fill="${s.fill?'color-mix(in srgb,var(--accent) 18%,transparent)':'none'}" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>`; }
-    else if(s.kind==='line'){ g+=`<line x1="${sx(s.x1)}" y1="${sy(s.y1)}" x2="${sx(s.x2)}" y2="${sy(s.y2)}" stroke="var(--ink-2)" stroke-width="1.8"/>`; }
-    else if(s.kind==='arrow'){ const x1=sx(s.x1),y1=sy(s.y1),x2=sx(s.x2),y2=sy(s.y2),ang=Math.atan2(y2-y1,x2-x1),hl=8; g+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--brand)" stroke-width="2"/><polygon points="${x2},${y2} ${x2-hl*Math.cos(ang-.4)},${y2-hl*Math.sin(ang-.4)} ${x2-hl*Math.cos(ang+.4)},${y2-hl*Math.sin(ang+.4)}" fill="var(--brand)"/>`; }
-    else if(s.kind==='text'){ g+=`<text x="${sx(s.x)}" y="${sy(s.y)}" font-size="13" fill="var(--ink)" font-family="var(--serif)" font-style="italic">${esc(s.label||'')}</text>`; }
+
+function figGeometry(f) {
+  const W = 520, H = 390, pad = 30;
+  const shapes = f.shapes || [];
+  let pts = [];
+  shapes.forEach(s => {
+    if (s.kind === 'circle') { pts.push([s.cx - s.r, s.cy - s.r], [s.cx + s.r, s.cy + s.r]); }
+    else if (s.kind === 'poly' || s.kind === 'line' || s.kind === 'arrow') {
+      (s.pts || [[s.x1, s.y1], [s.x2, s.y2]]).forEach(p => pts.push(p));
+      if (s.pts == null && s.x1 != null) pts.push([s.x1, s.y1], [s.x2, s.y2]);
+    } else if (s.kind === 'text') { pts.push([s.x, s.y]); }
+  });
+  if (!pts.length) pts = [[0, 0], [1, 1]];
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  let xmin = Math.min(...xs), xmax = Math.max(...xs), ymin = Math.min(...ys), ymax = Math.max(...ys);
+  const mx = (xmax - xmin) || 1, my = (ymax - ymin) || 1;
+  xmin -= mx * .12; xmax += mx * .12; ymin -= my * .12; ymax += my * .12;
+  const iw = W - 2 * pad, ih = H - 2 * pad;
+  const sx = x => pad + (x - xmin) / (xmax - xmin) * iw, sy = y => pad + (ymax - y) / (ymax - ymin) * ih;
+  let g = `<rect x="${pad}" y="${pad}" width="${iw}" height="${ih}" fill="var(--paper-2)" stroke="var(--line)" rx="6"/>`;
+  shapes.forEach(s => {
+    if (s.kind === 'circle') { g += `<circle cx="${sx(s.cx)}" cy="${sy(s.cy)}" r="${(s.r / (xmax - xmin)) * iw}" fill="none" stroke="var(--brand)" stroke-width="2"/>`; }
+    else if (s.kind === 'poly') { const p = (s.pts || []).map(q => `${sx(q[0])},${sy(q[1])}`).join(' '); g += `<polygon points="${p}" fill="${s.fill ? 'color-mix(in srgb,var(--accent) 18%,transparent)' : 'none'}" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>`; }
+    else if (s.kind === 'line') { g += `<line x1="${sx(s.x1)}" y1="${sy(s.y1)}" x2="${sx(s.x2)}" y2="${sy(s.y2)}" stroke="var(--ink-2)" stroke-width="1.8"/>`; }
+    else if (s.kind === 'arrow') { const x1 = sx(s.x1), y1 = sy(s.y1), x2 = sx(s.x2), y2 = sy(s.y2), ang = Math.atan2(y2 - y1, x2 - x1), hl = 8; g += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--brand)" stroke-width="2"/><polygon points="${x2},${y2} ${x2-hl*Math.cos(ang-.4)},${y2-hl*Math.sin(ang-.4)} ${x2-hl*Math.cos(ang+.4)},${y2-hl*Math.sin(ang+.4)}" fill="var(--brand)"/>`; }
+    else if (s.kind === 'text') { g += `<text x="${sx(s.x)}" y="${sy(s.y)}" font-size="13" fill="var(--ink)" font-family="var(--serif)" font-style="italic">${esc(s.label || '')}</text>`; }
   });
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
 }
-function figDiagram(f){
-  const W=520,H=390;
-  const boxes=f.boxes||[], arrows=f.arrows||[];
-  const bw=120,bh=44;
-  const pos={};
-  boxes.forEach((b,i)=>{ const x=b.x!=null?b.x:(10+(i%3)*32), y=b.y!=null?b.y:(10+Math.floor(i/3)*30); pos[b.label||i]={x:x/100*(W-bw), y:y/100*(H-bh)}; });
-  let g='';
-  arrows.forEach(a=>{ const from=pos[a.from]||{x:0,y:0}, to=pos[a.to]||{x:0,y:0}; const x1=from.x+bw/2,y1=from.y+bh/2,x2=to.x+bw/2,y2=to.y+bh/2; const ang=Math.atan2(y2-y1,x2-x1),hl=8; g+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--brand)" stroke-width="1.6" stroke-dasharray="4 3"/><polygon points="${x2},${y2} ${x2-hl*Math.cos(ang-.4)},${y2-hl*Math.sin(ang-.4)} ${x2-hl*Math.cos(ang+.4)},${y2-hl*Math.sin(ang+.4)}" fill="var(--brand)"/>`; });
-  boxes.forEach((b,i)=>{ const p=pos[b.label||i]; g+=`<rect x="${p.x}" y="${p.y}" width="${bw}" height="${bh}" rx="9" fill="var(--card-2)" stroke="var(--brand)" stroke-width="1.6"/><text x="${p.x+bw/2}" y="${p.y+bh/2+4}" text-anchor="middle" font-size="12" fill="var(--ink)" font-family="var(--sans)">${esc(String(b.label||'').slice(0,20))}</text>`; });
+
+function figDiagram(f) {
+  const W = 520, H = 390, boxes = f.boxes || [], arrows = f.arrows || [];
+  const bw = 120, bh = 44, pos = {};
+  boxes.forEach((b, i) => { const x = b.x != null ? b.x : (10 + (i % 3) * 32), y = b.y != null ? b.y : (10 + Math.floor(i / 3) * 30); pos[b.label || i] = { x: x / 100 * (W - bw), y: y / 100 * (H - bh) }; });
+  let g = '';
+  arrows.forEach(a => { const from = pos[a.from] || { x: 0, y: 0 }, to = pos[a.to] || { x: 0, y: 0 }; const x1 = from.x + bw / 2, y1 = from.y + bh / 2, x2 = to.x + bw / 2, y2 = to.y + bh / 2; const ang = Math.atan2(y2 - y1, x2 - x1), hl = 8; g += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--brand)" stroke-width="1.6" stroke-dasharray="4 3"/><polygon points="${x2},${y2} ${x2-hl*Math.cos(ang-.4)},${y2-hl*Math.sin(ang-.4)} ${x2-hl*Math.cos(ang+.4)},${y2-hl*Math.sin(ang+.4)}" fill="var(--brand)"/>`; });
+  boxes.forEach((b, i) => { const p = pos[b.label || i]; g += `<rect x="${p.x}" y="${p.y}" width="${bw}" height="${bh}" rx="9" fill="var(--card-2)" stroke="var(--brand)" stroke-width="1.6"/><text x="${p.x + bw / 2}" y="${p.y + bh / 2 + 4}" text-anchor="middle" font-size="12" fill="var(--ink)" font-family="var(--sans)">${esc(String(b.label || '').slice(0, 20))}</text>`; });
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
 }
-function renderFigure(f){
-  try{
-    switch(f.tipo){
+
+function renderFigure(f) {
+  try {
+    switch (f.tipo) {
       case 'funcion': return figFunction(f);
       case 'vector_field': return figVectorField(f);
       case 'parametrica': return figParametric(f);
       case 'geometria': return figGeometry(f);
       case 'diagrama': return figDiagram(f);
-      case 'tabla': return renderTable(f.headers,f.rows)||'<div class="prose">tabla vacía</div>';
+      case 'tabla': return renderTable(f.headers, f.rows) || '<div class="prose">tabla vacía</div>';
       default: return '';
     }
-  }catch(e){ return `<div class="prose" style="color:var(--bad)">Error al generar figura: ${esc(e.message)}</div>`; }
+  } catch (e) { return `<div class="prose" style="color:var(--bad)">Error al generar figura: ${esc(e.message)}</div>`; }
 }
-function renderFiguresBlock(figData){
-  const figs=(figData&&figData.figuras)||[];
-  if(!figs.length) return '';
-  const cards=figs.map(f=>{
-    const art = f.tipo==='tabla'? renderTable(f.headers,f.rows) : (f.tipo==='prosa'?'<div class="prose" style="padding:14px">'+(f.descripcion||'')+'</div>':renderFigure(f));
-    return `<figure><div class="art">${art}</div><figcaption><div class="ft">Fig. · ${esc(f.titulo||f.tipo)}</div><div class="fd">${f.descripcion||''}</div></figcaption></figure>`;
+
+function renderFiguresBlock(figData) {
+  const figs = (figData && figData.figuras) || [];
+  if (!figs.length) return '';
+  const cards = figs.map(f => {
+    const art = f.tipo === 'tabla' ? renderTable(f.headers, f.rows) : (f.tipo === 'prosa' ? '<div class="prose" style="padding:14px">' + (f.descripcion || '') + '</div>' : renderFigure(f));
+    return `<figure><div class="art">${art}</div><figcaption><div class="ft">Fig. · ${esc(f.titulo || f.tipo)}</div><div class="fd">${f.descripcion || ''}</div></figcaption></figure>`;
   }).join('');
   return `<div class="figures">${cards}</div>`;
 }
 
 /* ============================================================
-   ENSAMBLADO DEL INFORME (Igual que antes)
+   ENSAMBLADO FINAL DEL REPORTE
    ============================================================ */
-function assembleReport(run){
-  const {plan,resolver,theory,figures,research,report}=run;
-  const host=$('#reportHost');
-  const num=(n)=>`<span class="num">§ ${n}</span>`;
+function assembleReport(run) {
+  const { plan, resolver, theory, figures, research, report } = run;
+  const host = $('#reportHost');
+  const num = (n) => `<span class="num">§ ${n}</span>`;
   const mdBlock = run.markdown ? `<div class="mdview"><div class="mh"><span>Markdown editable (Word)</span><span class="grow"></span><button class="btn sm ghost" onclick="copyMd()">Copiar</button><button class="btn sm ghost" onclick="downloadMd()">Descargar .md</button></div><pre id="mdPre">${esc(run.markdown)}</pre></div>` : '';
 
   const html = `
   <article class="doc report">
     <div class="doc-head">
-      <div class="kicker">${esc(plan.area_principal||'Matemáticas')} · ${esc(AUD_LABEL[plan._aud||S.audience])} · profundidad ${esc(DEPTH_LABEL[plan._dep||S.depth])}</div>
-      <h2>${esc(report.titulo_final||plan.titulo||'Análisis')}</h2>
-      <div class="prob"><b>Enunciado.</b> ${resolver.enunciado_formal||esc(plan.objetivo||'')}</div>
+      <div class="kicker">${esc(plan.area_principal || 'Matemáticas')} · ${esc(AUD_LABEL[plan._aud || S.audience])} · profundidad ${esc(DEPTH_LABEL[plan._dep || S.depth])}</div>
+      <h2>${esc(report.titulo_final || plan.titulo || 'Análisis')}</h2>
+      <div class="prob"><b>Enunciado.</b> ${resolver.enunciado_formal || esc(plan.objetivo || '')}</div>
     </div>
     <div class="doc-body">
 
       <section class="blk">
         <h3 class="sec">${num(1)}Estrategia y planificación</h3>
         <p class="sec-sub">Cómo se abordará el problema y con qué herramientas.</p>
-        <div class="prose"><p>${resolver.estrategia||''}</p></div>
-        ${plan.hipotesis&&plan.hipotesis.length?`<div class="callout co-note"><div class="lab">Hipótesis y supuestos</div><ul>${plan.hipotesis.map(h=>`<li>${h}</li>`).join('')}</ul></div>`:''}
-        ${plan.notacion&&plan.notacion.length?`<div class="tbl-wrap"><table><thead><tr><th>Símbolo</th><th>Significado</th></tr></thead><tbody>${plan.notacion.map(n=>`<tr><td class="mono">\\(${n.symbolo}\\)</td><td>${n.significado||''}</td></tr>`).join('')}</tbody></table></div>`:''}
-        ${plan.riesgos&&plan.riesgos.length?`<div class="callout co-warn"><div class="lab">Sutilezas / riesgos</div><ul>${plan.riesgos.map(r=>`<li>${r}</li>`).join('')}</ul></div>`:''}
+        <div class="prose"><p>${resolver.estrategia || ''}</p></div>
+        ${plan.hipotesis && plan.hipotesis.length ? `<div class="callout co-note"><div class="lab">Hipótesis y supuestos</div><ul>${plan.hipotesis.map(h => `<li>${h}</li>`).join('')}</ul></div>` : ''}
+        ${plan.notacion && plan.notacion.length ? `<div class="tbl-wrap"><table><thead><tr><th>Símbolo</th><th>Significado</th></tr></thead><tbody>${plan.notacion.map(n => `<tr><td class="mono">\\(${n.symbolo}\\)</td><td>${n.significado || ''}</td></tr>`).join('')}</tbody></table></div>` : ''}
+        ${plan.riesgos && plan.riesgos.length ? `<div class="callout co-warn"><div class="lab">Sutilezas / riesgos</div><ul>${plan.riesgos.map(r => `<li>${r}</li>`).join('')}</ul></div>` : ''}
       </section>
 
       <section class="blk">
         <h3 class="sec">${num(2)}Desarrollo paso a paso</h3>
         <p class="sec-sub">Procedimiento completo, sin omitir ni resumir ningún paso.</p>
         ${renderSteps(resolver.pasos)}
-        ${resolver.resultado?`<div class="callout co-ok"><div class="lab">Resultado</div><div class="prose">$$${resolver.resultado}$$</div></div>`:''}
-        ${resolver.verificacion?`<div class="callout co-note"><div class="lab">Verificación</div><div class="prose">${resolver.verificacion}</div></div>`:''}
-        ${resolver.observaciones?`<div class="callout co-thm"><div class="lab">Observaciones</div><div class="prose">${resolver.observaciones}</div></div>`:''}
+        ${resolver.resultado ? `<div class="callout co-ok"><div class="lab">Resultado</div><div class="prose">$$${resolver.resultado}$$</div></div>` : ''}
+        ${resolver.verificacion ? `<div class="callout co-note"><div class="lab">Verificación</div><div class="prose">${resolver.verificacion}</div></div>` : ''}
+        ${resolver.observaciones ? `<div class="callout co-thm"><div class="lab">Observaciones</div><div class="prose">${resolver.observaciones}</div></div>` : ''}
       </section>
 
       <section class="blk">
         <h3 class="sec">${num(3)}Marco teórico</h3>
         <p class="sec-sub">Definiciones, teoremas, lemas, axiomas, métodos y herramientas que sustentan la solución, por ramas.</p>
         ${renderBranches(theory.ramas)}
-        ${theory.herramienta&&theory.herramientas&&theory.herramientas.length?`<h4 style="font-family:var(--serif);margin:18px 0 6px">Herramientas</h4><div class="tbl-wrap"><table><thead><tr><th>Herramienta</th><th>Uso aquí</th><th>Fuente</th></tr></thead><tbody>${theory.herramientas.map(h=>`<tr><td>${esc(h.nombre)}</td><td>${h.uso||''}</td><td>${h.fuente||''}</td></tr>`).join('')}</tbody></table></div>`:''}
-        ${theory.glosario&&theory.glosario.length?`<h4 style="font-family:var(--serif);margin:18px 0 6px">Glosario de términos y notación</h4><dl class="gloss">${theory.glosario.map(g=>`<div class="gl"><dt>${esc(g.termino)}</dt><dd>${g.def||''}</dd></div>`).join('')}</dl>`:''}
+        ${theory.herramientas && theory.herramientas.length ? `<h4 style="font-family:var(--serif);margin:18px 0 6px">Herramientas</h4><div class="tbl-wrap"><table><thead><tr><th>Herramienta</th><th>Uso aquí</th><th>Fuente</th></tr></thead><tbody>${theory.herramientas.map(h => `<tr><td>${esc(h.nombre)}</td><td>${h.uso || ''}</td><td>${h.fuente || ''}</td></tr>`).join('')}</tbody></table></div>` : ''}
+        ${theory.glosario && theory.glosario.length ? `<h4 style="font-family:var(--serif);margin:18px 0 6px">Glosario de términos y notación</h4><dl class="gloss">${theory.glosario.map(g => `<div class="gl"><dt>${esc(g.termino)}</dt><dd>${g.def || ''}</dd></div>`).join('')}</dl>` : ''}
       </section>
 
       <section class="blk">
         <h3 class="sec">${num(4)}Visualizaciones</h3>
         <p class="sec-sub">Figuras generadas para ilustrar el ejercicio y la teoría.</p>
         ${renderFiguresBlock(figures)}
-        ${figures&&figures.notas_imagenes?`<div class="callout co-note"><div class="lab">Guía de imágenes</div><div class="prose">${Array.isArray(figures.notas_imagenes)?'<ul>'+figures.notas_imagenes.map(n=>`<li>${n}</li>`).join('')+'</ul>':figures.notas_imagenes}</div></div>`:''}
+        ${figures && figures.notas_imagenes ? `<div class="callout co-note"><div class="lab">Guía de imágenes</div><div class="prose">${Array.isArray(figures.notas_imagenes) ? '<ul>' + figures.notas_imagenes.map(n => `<li>${n}</li>`).join('') + '</ul>' : figures.notas_imagenes}</div></div>` : ''}
       </section>
 
       <section class="blk">
@@ -1088,12 +1392,12 @@ function assembleReport(run){
         ${renderResearch(research)}
       </section>
 
-      ${report&&report.html?`<section class="blk"><h3 class="sec">${num(6)}Informe integrado</h3><p class="sec-sub">Redacción continua que une todos los hilos del análisis.</p>${report.html}</section>`:''}
+      ${report && report.html ? `<section class="blk"><h3 class="sec">${num(6)}Informe integrado</h3><p class="sec-sub">Redacción continua que une todos los hilos del análisis.</p>${report.html}</section>` : ''}
 
       <section class="blk">
         <h3 class="sec">${num(7)}Exportación editable</h3>
-        <p class="sec-sub">Markdown con el formato correspondiente (negritas, cursivas, imágenes, LaTeX $$) listo para Word.</p>
-        ${mdBlock||'<p class="prose">Markdown no generado.</p>'}
+        <p class="sec-sub">Markdown con el formato correspondiente listo para Word con ecuaciones editables.</p>
+        ${mdBlock || '<p class="prose">Markdown no generado.</p>'}
       </section>
     </div>
   </article>
@@ -1108,270 +1412,481 @@ function assembleReport(run){
 }
 
 /* ============================================================
-   ORQUESTADOR PRINCIPAL (Usando Gemini)
+   ORQUESTACIÓN PRINCIPAL DEL PIPELINE
    ============================================================ */
-async function runPipeline(){
+async function runPipeline() {
   const userPrompt = $('#prompt').value.trim();
-  if(!userPrompt){ toast('Escribe el ejercicio primero.'); $('#prompt').focus(); return; }
-  if(!S.key){ openModal('key'); return; }
-  if(S.running){ if(S.abort)S.abort.abort(); return; }
-  S.running=true; $('#runBtn').innerHTML='■ Detener'; setStat('run','Analizando con Gemini…');
+  if (!userPrompt) { toast('Escribe o pega el ejercicio primero.'); $('#prompt').focus(); return; }
+  if (!validKey(S.key)) { openModal('key'); return; }
+  if (S.running) { if (S.abort) S.abort.abort(); return; }
+
+  S.running = true;
+  $('#runBtn').innerHTML = '■ Detener';
+  setStat('run', 'Analizando con Gemini v6…');
   renderPipeline();
-  const files=S.files;
-  const aud=S.audience, dep=S.depth;
-  const run={plan:null,resolver:null,theory:null,figures:null,research:null,report:null,markdown:''};
 
-  try{
-    // 1 plan
-    setStage('plan','running','leyendo el ejercicio y diseñando el plan…');
-    run.plan = await askJSON(promptPlanner(userPrompt,files,aud,dep),{temperature:0.4});
-    run.plan._aud=aud; run.plan._dep=dep;
-    setStage('plan','done',(run.plan.ramas||[]).length+' ramas detectadas');
+  const files = S.files, aud = S.audience, dep = S.depth;
+  const run = { plan: null, resolver: null, theory: null, figures: null, research: null, report: null, markdown: '' };
 
-    // 2 resolver
-    setStage('resolve','running','desarrollando la solución paso a paso…');
-    run.resolver = await askJSON(promptResolver(run.plan,userPrompt,aud,dep),{temperature:0.3});
-    setStage('resolve','done',(run.resolver.pasos||[]).length+' pasos');
+  try {
+    setStage('plan', 'running', 'analizando ejercicio y trazando plan maestro…');
+    run.plan = await askJSON(promptPlanner(userPrompt, files, aud, dep), { temperature: 0.4 });
+    run.plan._aud = aud; run.plan._dep = dep;
+    setStage('plan', 'done', (run.plan.ramas || []).length + ' ramas detectadas');
 
-    // 3 teoría
-    setStage('theory','running','extrayendo el marco teórico…');
-    run.theory = await askJSON(promptTheory(run.plan,run.resolver,userPrompt,aud,dep),{temperature:0.35});
-    setStage('theory','done',(run.theory.ramas||[]).reduce((a,r)=>a+((r.items||[]).length),0)+' ítems teóricos');
+    setStage('resolve', 'running', 'desarrollando resolución paso a paso…');
+    run.resolver = await askJSON(promptResolver(run.plan, userPrompt, aud, dep), { temperature: 0.3 });
+    setStage('resolve', 'done', (run.resolver.pasos || []).length + ' pasos formalizados');
 
-    // 4 figuras + 5 investigación (paralelo)
-    setStage('figures','running','generando visualizaciones…');
-    setStage('research','running','explorando extensiones y literatura…');
-    const [figs,rs] = await Promise.all([
-      askJSON(promptFigures(run.plan,run.resolver,run.theory,userPrompt),{temperature:0.4}).catch(e=>({figuras:[],notas_imagenes:'Error: '+e.message})),
-      askJSON(promptResearch(run.plan,run.resolver,run.theory,userPrompt),{temperature:0.5}).catch(e=>({generalizaciones:[],problemas_abiertos:[],aplicaciones:[],historia:[],bibliografia:[],recursos:[],preguntas_siguientes:['Error: '+e.message]}))
+    setStage('theory', 'running', 'extrayendo marco teórico detallado…');
+    run.theory = await askJSON(promptTheory(run.plan, run.resolver, userPrompt, aud, dep), { temperature: 0.35 });
+    setStage('theory', 'done', (run.theory.ramas || []).reduce((a, r) => a + ((r.items || []).length), 0) + ' ítems teóricos');
+
+    setStage('figures', 'running', 'diseñando visualizaciones…');
+    setStage('research', 'running', 'investigando generalizaciones y literatura…');
+    const [figs, rs] = await Promise.all([
+      askJSON(promptFigures(run.plan, run.resolver, run.theory, userPrompt), { temperature: 0.4 }).catch(e => ({ figuras: [], notas_imagenes: 'Error figuras: ' + e.message })),
+      askJSON(promptResearch(run.plan, run.resolver, run.theory, userPrompt), { temperature: 0.5 }).catch(e => ({ generalizaciones: [], problemas_abiertos: [], aplicaciones: [], historia: [], bibliografia: [], recursos: [], preguntas_siguientes: ['Error: ' + e.message] }))
     ]);
-    run.figures=figs; run.research=rs;
-    setStage('figures','done',(figs.figuras||[]).length+' figuras');
-    setStage('research','done',(rs.bibliografia||[]).length+' referencias');
+    run.figures = figs; run.research = rs;
+    setStage('figures', 'done', (figs.figuras || []).length + ' figuras SVG');
+    setStage('research', 'done', (rs.bibliografia || []).length + ' referencias');
 
-    // mostrar avance parcial
-    run.report={html:'',titulo_final:run.plan.titulo};
+    run.report = { html: '', titulo_final: run.plan.titulo };
     assembleReport(run);
 
-    // 6 informe
-    setStage('report','running','ensamblando el informe final…');
-    run.report = await askJSON(promptReport(run.plan,run.resolver,run.theory,figs,rs,userPrompt),{temperature:0.3});
-    setStage('report','done','informe listo');
+    setStage('report', 'running', 'ensamblando informe final integrado…');
+    run.report = await askJSON(promptReport(run.plan, run.resolver, run.theory, figs, rs, userPrompt), { temperature: 0.3 });
+    setStage('report', 'done', 'informe listo');
 
-    // 7 markdown
-    setStage('md','running','convirtiendo a Markdown editable…');
-    try{ const md=await askJSON(promptMd(run.plan,run.resolver,run.theory,figs,rs),{temperature:0.25}); run.markdown=md.markdown||''; setStage('md','done','markdown listo'); }
-    catch(e){ run.markdown='*No se pudo generar el markdown: '+e.message+'*'; setStage('md','error',e.message); }
+    setStage('md', 'running', 'convirtiendo a Markdown para Word…');
+    try {
+      const md = await askJSON(promptMd(run.plan, run.resolver, run.theory, figs, rs), { temperature: 0.25 });
+      run.markdown = md.markdown || '';
+      setStage('md', 'done', 'markdown listo');
+    } catch (e) {
+      run.markdown = '*No se pudo generar el markdown: ' + e.message + '*';
+      setStage('md', 'error', e.message);
+    }
 
     assembleReport(run);
-    S.lastRun=run;
-    setStat('ok','Análisis completo (Gemini)');
-    toast('✓ Análisis terminado. Puedes exportar el informe.');
-  }catch(err){
-    const cur = STAGES.find(s=>stageEls[s.id]&&stageEls[s.id].classList.contains('running'));
-    if(cur) setStage(cur.id,'error',String(err.message||err).slice(0,160));
-    setStat('bad','Error');
-    if(String(err).includes('abort')) toast('Análisis detenido.');
-    else toast('Error: '+String(err.message||err).slice(0,140),4200);
-  }finally{
-    S.running=false; $('#runBtn').innerHTML='▶ Analizar';
-    if($('#statPill').classList.contains('run')) setStat('','Listo');
+    S.lastRun = run;
+    setStat('ok', 'Análisis completo');
+    toast('✓ Análisis terminado exitosamente.');
+    log('Pipeline completado con éxito.');
+  } catch (err) {
+    const cur = STAGES.find(s => stageEls[s.id] && stageEls[s.id].classList.contains('running'));
+    if (cur) setStage(cur.id, 'error', String(err.message || err).slice(0, 160));
+    setStat('bad', 'Error');
+    const msg = String(err && err.message || err);
+    if (msg.includes('abort')) toast('Análisis detenido.');
+    else toast('Error: ' + msg.slice(0, 140), 4500);
+    log('ERROR PIPELINE: ' + msg);
+  } finally {
+    S.running = false;
+    $('#runBtn').innerHTML = '▶ Analizar';
+    if ($('#statPill').classList.contains('run')) setStat('', 'Listo');
   }
 }
 
 /* ============================================================
-   EXPORTACIÓN (Igual que antes)
+   EXPORTACIONES
    ============================================================ */
-function collectReportHTML(){
-  const doc=$('#reportHost .doc'); if(!doc) return '';
-  const clone=doc.cloneNode(true);
-  clone.querySelectorAll('button').forEach(b=>b.remove());
+function collectReportHTML() {
+  const doc = $('#reportHost .doc'); if (!doc) return '';
+  const clone = doc.cloneNode(true);
+  clone.querySelectorAll('button').forEach(b => b.remove());
   return clone.outerHTML;
 }
-function exportHTML(){
-  const body=collectReportHTML();
-  if(!body){ toast('Primero genera un análisis.'); return; }
-  const css=document.querySelector('style').textContent;
-  const title=(S.lastRun&&S.lastRun.plan&&S.lastRun.plan.titulo)||'Informe matemático';
-  const docHtml=`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
+
+function exportHTML() {
+  const body = collectReportHTML();
+  if (!body) { toast('Primero genera un análisis.'); return; }
+  const css = document.querySelector('style').textContent;
+  const title = (S.lastRun && S.lastRun.plan && S.lastRun.plan.titulo) || 'Informe matemático';
+  const docHtml = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script>window.MathJax={tex:{inlineMath:[['\\\\(','\\\\)'],['$','$']],displayMath:[['$$','$$'],['\\\\[','\\\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']},startup:{typeset:true}};<\/script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']},startup:{typeset:true}};<\/script>
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"><\/script>
 <style>:root{--paper:#e7e6df;--paper-2:#f2f1ea;--card:#fbfaf5;--card-2:#fff;--ink:#171d29;--ink-2:#39424f;--muted:#6d7482;--line:#d7d6cc;--line-2:#e6e5dc;--brand:#1a73e8;--brand-2:#1557b0;--brand-tint:#e8f0fe;--accent:#d93025;--gold:#f9ab00;--ok:#188038;--warn:#f9ab00;--bad:#d93025;--sans:'IBM Plex Sans',sans-serif;--serif:'Fraunces',serif;--mono:'IBM Plex Mono',monospace;--sh1:0 1px 2px rgba(20,30,40,.06),0 3px 10px rgba(20,30,40,.05);--sh2:0 10px 30px rgba(20,30,40,.1)}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.55;padding:32px 16px}
-.wrap{max-width:960px;margin:0 auto}${css.replace(/:root\{[^}]*\}/,'').replace(/\[data-theme="dark"\]\{[^}]*\}/,'').replace(/\.app\{[^}]*\}/,'').replace(/body\{[^}]*overflow:hidden[^}]*\}/,'')}</style>
+.wrap{max-width:960px;margin:0 auto}${css.replace(/:root\{[^}]*\}/, '').replace(/\[data-theme="dark"\]\{[^}]*\}/, '').replace(/\.app\{[^}]*\}/, '').replace(/body\{[^}]*overflow:hidden[^}]*\}/, '')}</style>
 </head><body><div class="wrap">${body}</div></body></html>`;
-  download((title||'informe').replace(/[^\w\-]+/g,'_').slice(0,50)+'.html', docHtml, 'text/html');
-  toast('Informe exportado (autónomo, con MathJax).');
+  download((title || 'informe').replace(/[^\w\-]+/g, '_').slice(0, 50) + '.html', docHtml, 'text/html');
+  toast('Informe exportado con MathJax autónomo.');
 }
-function downloadMd(){ if(!S.lastRun||!S.lastRun.markdown){toast('Aún no hay markdown.');return;} download(((S.lastRun.plan.titulo)||'informe').replace(/[^\w\-]+/g,'_').slice(0,50)+'.md', S.lastRun.markdown, 'text/markdown'); toast('Markdown descargado.'); }
-function copyMd(){ if(!S.lastRun||!S.lastRun.markdown){toast('Aún no hay markdown.');return;} navigator.clipboard.writeText(S.lastRun.markdown).then(()=>toast('Markdown copiado.')); }
+
+function downloadMd() {
+  if (!S.lastRun || !S.lastRun.markdown) { toast('Aún no hay markdown disponible.'); return; }
+  download(((S.lastRun.plan.titulo) || 'informe').replace(/[^\w\-]+/g, '_').slice(0, 50) + '.md', S.lastRun.markdown, 'text/markdown');
+  toast('Markdown descargado.');
+}
+
+function copyMd() {
+  if (!S.lastRun || !S.lastRun.markdown) { toast('Aún no hay markdown para copiar.'); return; }
+  navigator.clipboard.writeText(S.lastRun.markdown).then(() => toast('Markdown copiado al portapapeles.'));
+}
 
 /* ============================================================
-   ARCHIVOS / ADJUNTOS (Igual que antes)
+   ARCHIVOS Y ADJUNTOS
    ============================================================ */
-function fileKind(f){
-  const n=f.name.toLowerCase();
-  if(n.endsWith('.pdf'))return 'pdf'; if(n.endsWith('.zip'))return 'zip';
-  if(/\.(png|jpe?g|gif|webp|svg)$/.test(n))return 'image';
-  if(/\.(txt|md|csv|json|tex|xml|html)$/.test(n))return 'text';
-  if(/\.(py|js|ts|m|c|cpp|java|ipynb)$/.test(n))return 'code';
+function fileKind(f) {
+  const n = f.name.toLowerCase();
+  if (n.endsWith('.pdf')) return 'pdf'; if (n.endsWith('.zip')) return 'zip';
+  if (/\.(png|jpe?g|gif|webp|svg)$/.test(n)) return 'image';
+  if (/\.(txt|md|csv|json|tex|xml|html)$/.test(n)) return 'text';
+  if (/\.(py|js|ts|m|c|cpp|java|ipynb)$/.test(n)) return 'code';
   return 'other';
 }
-async function readFiles(list){
-  for(const f of list){
-    const kind=fileKind(f);
-    const rec={id:uid(),name:f.name,kind,size:f.size,text:'',url:''};
-    if(kind==='text'||kind==='code'){ rec.text=await f.text(); }
-    else if(kind==='pdf'){ rec.text='[PDF adjunto: '+f.name+'. Extrae el texto relevante y cítalo.]'; }
-    else if(kind==='zip'){ rec.text='[Archivo ZIP: '+f.name+'. Describe su contenido esperado.]'; }
-    else if(kind==='image'){ rec.url=URL.createObjectURL(f); }
+
+async function readFiles(list) {
+  for (const f of list) {
+    const kind = fileKind(f);
+    const rec = { id: uid(), name: f.name, kind, size: f.size, text: '', url: '' };
+    if (kind === 'text' || kind === 'code') { rec.text = await f.text(); }
+    else if (kind === 'pdf') { rec.text = '[PDF adjunto: ' + f.name + '. Extrae el contexto relevante.]'; }
+    else if (kind === 'zip') { rec.text = '[Archivo ZIP: ' + f.name + '.]'; }
+    else if (kind === 'image') { rec.url = URL.createObjectURL(f); }
     S.files.push(rec);
   }
   renderAtts();
 }
-function renderAtts(){
-  $('#atts').innerHTML=S.files.map(f=>`<span class="att">${f.kind==='image'?'🖼':f.kind==='pdf'?'📄':f.kind==='zip'?'🗜':f.kind==='code'?'⌨️':'📃'} ${esc(f.name)} <span style="color:var(--muted)">${(f.size/1024).toFixed(0)}KB</span><span class="x" data-id="${f.id}">✕</span></span>`).join('');
-  $$('#atts .x').forEach(x=>x.onclick=()=>{ S.files=S.files.filter(f=>f.id!==x.dataset.id); renderAtts(); });
+
+function renderAtts() {
+  $('#atts').innerHTML = S.files.map(f => `<span class="att">${f.kind === 'image' ? '🖼' : f.kind === 'pdf' ? '📄' : f.kind === 'zip' ? '🗜' : f.kind === 'code' ? '⌨️' : '📃'} ${esc(f.name)} <span style="color:var(--muted)">${(f.size / 1024).toFixed(0)}KB</span><span class="x" data-id="${f.id}">✕</span></span>`).join('');
+  $$('#atts .x').forEach(x => x.onclick = () => { S.files = S.files.filter(f => f.id !== x.dataset.id); renderAtts(); });
 }
 
 /* ============================================================
-   UI: chips, tema, modal, ejemplos, red de fondo (Igual que antes)
+   UI, MODELOS, TEMAS Y EVENTOS
    ============================================================ */
-function bindChips(sel,getter,setter,hintEl){
-  $$(sel+' .chip').forEach(c=>c.onclick=()=>{
-    $$(sel+' .chip').forEach(x=>x.classList.remove('on'));
-    c.classList.add('on'); setter(c.dataset[Object.keys(c.dataset)[0]]); saveCfg();
-    if(hintEl) hintEl();
+function updateModelSelect() {
+  const sel = $('#model');
+  if (!sel) return;
+  const current = S.model;
+  const values = unique([current].concat(PREFERRED_MODELS).concat(cachedModels).concat(['custom']));
+
+  sel.innerHTML = '';
+  values.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v;
+    if (v === 'custom') opt.textContent = 'Personalizado…';
+    else if (v === PREFERRED_MODELS[0]) opt.textContent = v + ' (recomendado)';
+    else opt.textContent = v;
+    sel.appendChild(opt);
+  });
+
+  sel.value = values.includes(current) ? current : PREFERRED_MODELS[0];
+  $('#customModel').style.display = sel.value === 'custom' ? 'block' : 'none';
+}
+
+function updateConn() {
+  const p = $('#connPill');
+  const has = validKey(S.key);
+  p.className = 'pill ' + (has ? 'ok' : 'warn');
+  const modelName = S.model === 'custom' ? (S.customModel || 'personalizado') : S.model;
+  $('#connTxt').textContent = has ? ((S.key.startsWith('AQ.') ? 'Key AQ' : 'Key AIza') + ' · ' + modelName) : 'Falta API key';
+
+  if (has) setPanelStatus('ok', 'Clave detectada · ' + modelName);
+  else setPanelStatus('warn', 'Pega tu clave Gemini: AQ... o AIza...');
+}
+
+function updateAudHint() {
+  const m = {
+    doctor: 'Rigor máximo: demostraciones completas, generalizaciones y conexiones avanzadas.',
+    maestro: 'Rigor + enfoque docente: porqués, errores comunes e intuición didáctica.',
+    licenciatura: 'Detalle pedagógico: cada paso justificado, conceptos definidos al aparecer.',
+    publico: 'Analogías accesibles, define toda la jerga, prioriza intuición y claridad.'
+  };
+  $('#audHint').textContent = m[S.audience] || '';
+}
+
+function toggleTheme() {
+  const b = document.body;
+  b.dataset.theme = b.dataset.theme === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('praxis.theme', b.dataset.theme); } catch (e) {}
+}
+
+function loadTheme() {
+  try {
+    const t = localStorage.getItem('praxis.theme');
+    if (t) document.body.dataset.theme = t;
+  } catch (e) {}
+}
+
+const EXAMPLES = [
+  { n: '01', t: 'Lema de Itô', d: 'Demostrar la fórmula de Itô para f(B_t) con Browniano.', p: 'Demuestra la fórmula de Itô: para un movimiento browniano B_t y f∈C², df(B_t)=f\'(B_t)dB_t + ½f\'\'(B_t)dt.' },
+  { n: '02', t: 'Teorema de Cayley–Hamilton', d: 'Demostrar que toda matriz satisface su polinomio característico.', p: 'Enuncia y demuestra el teorema de Cayley–Hamilton: toda matriz cuadrada A sobre un cuerpo anula su polinomio característico p_A(A)=0.' },
+  { n: '03', t: 'Serie armónica divergente', d: 'Probar que Σ 1/n diverge y estimar su crecimiento.', p: 'Demuestra que la serie armónica Σ_{n=1}^∞ 1/n diverge, y obtén la estimación asintótica Σ_{k≤n}1/k = ln n + γ + o(1).' },
+  { n: '04', t: 'Flujo de un campo vectorial', d: 'Resolver el sistema dx/dt=y, dy/dt=-x y clasificar el origen.', p: 'Resuelve el sistema de EDO lineal x\'=y, y\'=-x, halla las trayectorias y clasifica el punto crítico en el origen usando el plano fase.' },
+  { n: '05', t: 'Integral de Gauss', d: 'Calcular ∫_{-∞}^{∞} e^{-x²} dx.', p: 'Calcula la integral gaussiana I=∫_{-∞}^{∞} e^{-x^2}dx usando coordenadas polares, y comenta su relación con la función error.' },
+  { n: '06', t: 'Teorema de Bolzano–Weierstrass', d: 'Toda sucesión acotada en ℝⁿ tiene subsucesión convergente.', p: 'Enuncia y demuestra el teorema de Bolzano–Weierstrass en ℝⁿ, discutiendo la relación con compacidad y completez.' }
+];
+
+function showExamples() {
+  $('#stageWrap').innerHTML = `<div class="empty"><div class="big">De un ejercicio<br>a una <em>investigación</em>.</div>
+  <p class="lead">Praxis orquesta siete agentes especializados con el motor nativo de <b>Gemini v6</b>: planifica, resuelve paso a paso, extrae el marco teórico, genera visualizaciones SVG, investiga extensiones y ensambla un informe exportable con MathJax y Markdown para Word.</p>
+  <div class="sect-label" style="margin-top:0">Prueba con uno de estos</div>
+  <div class="exlist">${EXAMPLES.map(e => `<button class="ex" data-p="${encodeURIComponent(e.p)}"><span class="n">${e.n}</span><span><span class="t">${esc(e.t)}</span><span class="d">${esc(e.d)}</span></span></button>`).join('')}</div>
+  </div>`;
+  $$('.ex').forEach(b => b.onclick = () => {
+    $('#prompt').value = decodeURIComponent(b.dataset.p);
+    $('#prompt').focus();
+    $('#stageWrap').innerHTML = '';
+    toast('Ejercicio cargado. Pulsa Analizar.');
   });
 }
-function syncChips(){
-  $$('#audChips .chip').forEach(c=>c.classList.toggle('on',c.dataset.aud===S.audience));
-  $$('#depthChips .chip').forEach(c=>c.classList.toggle('on',c.dataset.depth===S.depth));
-  $$('#toolChips .chip').forEach(c=>c.classList.toggle('on',!!S.tools[c.dataset.tool]));
-  updateAudHint();
-}
-function updateAudHint(){
-  const m={doctor:'Rigor máximo: demostraciones completas, generalizaciones y conexiones avanzadas.',maestro:'Rigor + enfoque docente: porqués, errores comunes e intuición.',licenciatura:'Detalle pedagógico: cada paso justificado, conceptos definidos al aparecer.',publico:'Empieza con analogías, define toda la jerga, prioriza claridad.'};
-  $('#audHint').textContent=m[S.audience];
-}
-function toggleTheme(){ const b=document.body; b.dataset.theme=b.dataset.theme==='dark'?'light':'dark'; try{localStorage.setItem('praxis.theme',b.dataset.theme)}catch(e){} }
-function loadTheme(){ try{const t=localStorage.getItem('praxis.theme'); if(t)document.body.dataset.theme=t;}catch(e){} }
 
-const EXAMPLES=[
-  {n:'01',t:'Lema de Itô',d:'Demostrar la fórmula de Itô para f(B_t) con Browniano.',p:'Demuestra la fórmula de Itô: para un movimiento browniano B_t y f∈C², df(B_t)=f\'(B_t)dB_t + ½f\'\'(B_t)dt.'},
-  {n:'02',t:'Teorema de Cayley–Hamilton',d:'Demostrar que toda matriz satisface su polinomio característico.',p:'Enuncia y demuestra el teorema de Cayley–Hamilton: toda matriz cuadrada A sobre un cuerpo anula su polinomio característico p_A(A)=0.'},
-  {n:'03',t:'Serie armónica divergente',d:'Probar que Σ 1/n diverge y estimar su crecimiento.',p:'Demuestra que la serie armónica Σ_{n=1}^∞ 1/n diverge, y obtén la estimación asintótica Σ_{k≤n}1/k = ln n + γ + o(1).'},
-  {n:'04',t:'Flujo de un campo vectorial',d:'Resolver el sistema dx/dt=y, dy/dt=-x y clasificar el origen.',p:'Resuelve el sistema de EDO lineal x\'=y, y\'=-x, halla las trayectorias y clasifica el punto crítico en el origen usando el plano fase.'},
-  {n:'05',t:'Integral de Gauss',d:'Calcular ∫_{-∞}^{∞} e^{-x²} dx.',p:'Calcula la integral gaussiana I=∫_{-∞}^{∞} e^{-x^2}dx usando coordenadas polares, y comenta su relación con la función error.'},
-  {n:'06',t:'Teorema de Bolzano–Weierstrass',d:'Toda sucesión acotada en ℝⁿ tiene subsucesión convergente.',p:'Enuncia y demuestra el teorema de Bolzano–Weierstrass en ℝⁿ, discutiendo la relación con compacidad y completez.'}
-];
-function showExamples(){
-  $('#stageWrap').innerHTML=`<div class="empty"><div class="big">De un ejercicio<br>a una <em>investigación</em>.</div>
-  <p class="lead">Praxis orquesta siete agentes especializados con <b>Gemini</b>: planifica, resuelve paso a paso, extrae el marco teórico, genera visualizaciones, investiga generalizaciones y ensambla un informe exportable con LaTeX (MathJax) y figuras SVG.</p>
-  <div class="sect-label" style="margin-top:0">Prueba con uno de estos</div>
-  <div class="exlist">${EXAMPLES.map(e=>`<button class="ex" data-p="${encodeURIComponent(e.p)}"><span class="n">${e.n}</span><span><span class="t">${esc(e.t)}</span><span class="d">${esc(e.d)}</span></span></button>`).join('')}</div>
-  </div>`;
-  $$('.ex').forEach(b=>b.onclick=()=>{ $('#prompt').value=decodeURIComponent(b.dataset.p); $('#prompt').focus(); $('#stageWrap').innerHTML=''; toast('Ejercicio cargado. Pulsa Analizar.'); });
-}
-
-/* modal */
-function openModal(which){
-  const m=$('#modal');
-  if(which==='key'){
-    $('#modalTitle').textContent='Obtener tu API key de Gemini';
-    $('#modalBody').innerHTML=`<p>Praxis usa la API de <b>Google Gemini</b> (AI Studio). Regístrate y crea una clave:</p>
+function openModal(which) {
+  const m = $('#modal');
+  if (which === 'key') {
+    $('#modalTitle').textContent = 'API Key de Google Gemini';
+    $('#modalBody').innerHTML = `<p>Praxis es compatible tanto con claves de <b>Google AI Studio</b> (<code>AIza...</code>) como con tokens/claves de despliegue (<code>AQ...</code>):</p>
     <ol class="steps-list">
-      <li>Entra a <a href="https://aistudio.google.com/api-keys" target="_blank" style="color:var(--brand)">Google AI Studio - API Keys</a>.</li>
+      <li>Accede a <a href="https://aistudio.google.com/api-keys" target="_blank" style="color:var(--brand)">Google AI Studio - API Keys</a>.</li>
       <li>Inicia sesión con tu cuenta de Google.</li>
-      <li>Haz clic en <b>Create API key</b> (o selecciona un proyecto existente).</li>
-      <li>Copia la clave que empieza por <code>AIza...</code>.</li>
-      <li>Pégala arriba. El modelo <code>gemini-2.0-flash-exp</code> es gratuito y muy rápido.</li>
+      <li>Crea tu API Key y pégala en el campo de conexión.</li>
+      <li>Si estás en celular o GitHub Pages, usa el botón <b>"Probar conexión"</b> o la herramienta <b>"🛠"</b> de la barra superior.</li>
     </ol>
-    <div class="warnbox"><b>Privacidad.</b> La clave se guarda solo en tu navegador (localStorage) y viaja en la URL de la petición. No la compartas ni la publiques. Para producción usa un proxy propio.</div>`;
-  }else{
-    $('#modalTitle').textContent='Praxis · Guía (Gemini)';
-    $('#modalBody').innerHTML=`<p><b>Qué hace.</b> Un orquestador multi‑agente que convierte un ejercicio matemático en investigación profunda usando <b>Gemini</b>: desarrollo sin omisiones, marco teórico por ramas (definiciones, teoremas, lemas, axiomas, métodos, herramientas) con demostraciones, figuras SVG autogeneradas, extensiones/literatura, informe exportable y Markdown editable para Word.</p>
-    <h4>Flujo de agentes</h4>
-    <ol class="steps-list"><li>Planificador Maestro</li><li>Agente de Resolución (paso a paso)</li><li>Agente Teórico (marco por ramas)</li><li>Agente de Visualización (figuras SVG)</li><li>Agente de Investigación (generalización/literatura)</li><li>Ensamblador de Informe (HTML)</li><li>Agente Markdown (exportación)</li></ol>
-    <h4>Controles</h4>
-    <p>Audiencia y profundidad ajustan el nivel de rigor. Las herramientas (Web/PDF/ZIP/Código) marcan qué fuentes puedes adjuntar; el contenido se integra al análisis. Los gráficos se generan localmente evaluando expresiones elementales de JavaScript (sin ejecutar código arbitrario del modelo).</p>
-    <h4>Exportar</h4>
-    <p><b>Informe .html</b> autónomo (con MathJax incrustado) y <b>Markdown</b> con formato para procesar ecuaciones editables en Word.</p>`;
+    <div class="warnbox"><b>Seguridad:</b> La clave se almacena exclusivamente en el almacenamiento local de tu navegador (localStorage) y se envía de forma cifrada mediante encabezados HTTPS oficiales.</div>`;
+  } else {
+    $('#modalTitle').textContent = 'Praxis · Guía de Orquestación';
+    $('#modalBody').innerHTML = `<p><b>Arquitectura Multi-Agente:</b> Convierte cualquier ejercicio matemático en un estudio exhaustivo sin omisiones:</p>
+    <h4>Flujo de las 7 fases</h4>
+    <ol class="steps-list">
+      <li><b>Planificador Maestro:</b> Clasificación, notación, riesgos e hipótesis.</li>
+      <li><b>Agente de Resolución:</b> Demostración formal y pasos sin saltos.</li>
+      <li><b>Agente Teórico:</b> Desglose de axiomas, teoremas y definiciones por ramas.</li>
+      <li><b>Agente de Visualización:</b> Generación matemática nativa en SVG.</li>
+      <li><b>Agente de Investigación:</b> Generalizaciones, historia, problemas abiertos y fuentes.</li>
+      <li><b>Ensamblador de Informe:</b> Unificación en HTML legible con MathJax.</li>
+      <li><b>Agente Markdown:</b> Exportación compatible con ecuaciones para Microsoft Word.</li>
+    </ol>`;
   }
   m.classList.add('open');
 }
-function closeModal(){ $('#modal').classList.remove('open'); }
 
-/* red de fondo */
-function buildNet(){
-  const svg=$('#net'); if(!svg)return; const w=innerWidth,h=innerHeight;
-  const N=Math.min(46,Math.floor(w*h/26000)); const pts=[];
-  for(let i=0;i<N;i++)pts.push({x:Math.random()*w,y:Math.random()*h,d:Math.random()*6});
-  let lines='';
-  for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){ const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,dist=Math.hypot(dx,dy); if(dist<150){ lines+=`<line x1="${pts[i].x}" y1="${pts[i].y}" x2="${pts[j].x}" y2="${pts[j].y}" stroke-dasharray="2 6" style="animation-delay:${(dist/150*8).toFixed(1)}s"/>`; } }
-  let dots=''; pts.forEach(p=>dots+=`<circle cx="${p.x}" cy="${p.y}" r="2" style="animation-delay:${p.d}s"/>`);
-  svg.innerHTML=lines+dots;
+function closeModal() { $('#modal').classList.remove('open'); }
+
+/* Red geométrica de fondo */
+function buildNet() {
+  const svg = $('#net'); if (!svg) return;
+  const w = innerWidth, h = innerHeight;
+  const N = Math.min(46, Math.floor(w * h / 26000));
+  const pts = [];
+  for (let i = 0; i < N; i++) pts.push({ x: Math.random() * w, y: Math.random() * h, d: Math.random() * 6 });
+  let lines = '';
+  for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) {
+    const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y, dist = Math.hypot(dx, dy);
+    if (dist < 150) lines += `<line x1="${pts[i].x}" y1="${pts[i].y}" x2="${pts[j].x}" y2="${pts[j].y}" stroke-dasharray="2 6" style="animation-delay:${(dist / 150 * 8).toFixed(1)}s"/>`;
+  }
+  let dots = '';
+  pts.forEach(p => dots += `<circle cx="${p.x}" cy="${p.y}" r="2" style="animation-delay:${p.d}s"/>`);
+  svg.innerHTML = lines + dots;
+}
+
+/* Pruebas y diagnósticos */
+async function testConnection() {
+  if (!validKey(S.key)) {
+    setPanelStatus('bad', 'Clave vacía o formato inválido');
+    toast('Ingresa una API Key válida (AIza... o AQ...)');
+    openModal('key');
+    return;
+  }
+  const btn = $('#testBtn');
+  btn.disabled = true; btn.textContent = 'Probando…';
+  setPanelStatus('run', 'Probando conexión con Gemini…');
+  setStat('run', 'Verificando…');
+  try {
+    const res = await callGemini('Responde exactamente con la palabra: OK', { temperature: 0, max_tokens: 20, json: false });
+    toast('Conexión correcta ✔ ' + res.trim().slice(0, 30));
+    setStat('ok', 'Conectado');
+    setPanelStatus('ok', 'Conexión verificada: ' + res.trim());
+    log('Prueba exitosa con modelo ' + S.model + ': ' + res.trim());
+  } catch (e) {
+    const msg = friendlyError(e);
+    toast('Fallo de conexión: ' + msg.slice(0, 100), 4500);
+    setStat('bad', 'Error de conexión');
+    setPanelStatus('bad', 'Fallo: ' + msg);
+    log('ERROR TEST: ' + msg);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Probar conexión';
+  }
+}
+
+async function listModelsAction() {
+  setPanelStatus('run', 'Consultando modelos disponibles en Google...');
+  try {
+    const models = await fetchModels();
+    setPanelStatus('ok', 'Modelos detectados: ' + models.length);
+    toast('Modelos cargados (' + models.length + ')');
+    log('Modelos detectados: ' + models.join(', '));
+  } catch (e) {
+    const msg = friendlyError(e);
+    setPanelStatus('bad', 'Error listando: ' + msg);
+    toast('Error: ' + msg.slice(0, 100));
+    log('ERROR LISTAR: ' + msg);
+  }
 }
 
 /* ============================================================
    INICIALIZACIÓN
    ============================================================ */
-function init(){
-  loadCfg(); loadTheme();
-  // hidratar controles
-  $('#apiKey').value=S.key||''; $('#model').value=['gemini-2.0-flash-exp','gemini-1.5-flash','gemini-1.5-pro'].includes(S.model)?S.model:'custom';
-  $('#customModel').value=S.customModel; $('#customModel').style.display=$('#model').value==='custom'?'block':'none';
+function init() {
+  loadCfg();
+  loadTheme();
+
+  $('#apiKey').value = S.key || '';
+  updateModelSelect();
   syncChips();
 
-  bindChips('#audChips',()=>S.audience,v=>{S.audience=v;updateAudHint();},'x');
-  // rebind con datos correctos
-  $$('#audChips .chip').forEach(c=>c.onclick=()=>{$$('#audChips .chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');S.audience=c.dataset.aud;saveCfg();updateAudHint();});
-  $$('#depthChips .chip').forEach(c=>c.onclick=()=>{$$('#depthChips .chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');S.depth=c.dataset.depth;saveCfg();});
-  $$('#toolChips .chip').forEach(c=>c.onclick=()=>{const t=c.dataset.tool;S.tools[t]=!S.tools[t];c.classList.toggle('on',S.tools[t]);saveCfg();});
+  $$('#audChips .chip').forEach(c => c.onclick = () => {
+    $$('#audChips .chip').forEach(x => x.classList.remove('on'));
+    c.classList.add('on');
+    S.audience = c.dataset.aud;
+    saveCfg();
+    updateAudHint();
+  });
 
-  $('#apiKey').addEventListener('input',debounce(()=>{S.key=$('#apiKey').value.trim();saveCfg();updateConn();},300));
-  $('#eyeBtn').onclick=()=>{const i=$('#apiKey');i.type=i.type==='password'?'text':'password';};
-  $('#model').onchange=()=>{S.model=$('#model').value;$('#customModel').style.display=S.model==='custom'?'block':'none';saveCfg();};
-  $('#customModel').addEventListener('input',debounce(()=>{S.customModel=$('#customModel').value.trim();saveCfg();},300));
-  $('#helpKey').onclick=e=>{e.preventDefault();openModal('key');};
-  $('#aboutBtn').onclick=()=>openModal('about');
-  $('#modalClose').onclick=closeModal;
-  $('#modal').onclick=e=>{if(e.target.id==='modal')closeModal();};
-  $('#themeBtn').onclick=toggleTheme;
-  $('#clearBtn').onclick=()=>{ if(confirm('¿Limpiar el análisis actual?')){ $('#stageWrap').innerHTML=''; $('#prompt').value=''; S.files=[]; renderAtts(); showExamples(); } };
-  $('#exampleBtn').onclick=showExamples;
-  $('#menuBtn').onclick=()=>{ document.querySelector('.sidebar').scrollIntoView({behavior:'smooth'}); };
+  $$('#depthChips .chip').forEach(c => c.onclick = () => {
+    $$('#depthChips .chip').forEach(x => x.classList.remove('on'));
+    c.classList.add('on');
+    S.depth = c.dataset.depth;
+    saveCfg();
+  });
 
-  $('#testBtn').onclick=async()=>{
-    if(!S.key){openModal('key');return;}
-    $('#testBtn').disabled=true; $('#testBtn').textContent='Probando…'; setStat('run','Probando Gemini…');
-    try{ 
-      const r=await callGemini('Responde solo con la palabra: OK', {temperature:0, max_tokens:10}); 
-      toast('Conexión correcta ✔ '+r.trim().slice(0,20)); 
-      setStat('ok','Conectado a Gemini'); 
-    }
-    catch(e){ toast('Fallo: '+String(e.message||e).slice(0,120),4200); setStat('bad','Error'); }
-    finally{ $('#testBtn').disabled=false; $('#testBtn').textContent='Probar conexión'; }
+  $$('#toolChips .chip').forEach(c => c.onclick = () => {
+    const t = c.dataset.tool;
+    S.tools[t] = !S.tools[t];
+    c.classList.toggle('on', S.tools[t]);
+    saveCfg();
+  });
+
+  $('#apiKey').addEventListener('input', debounce(() => {
+    const val = $('#apiKey').value.trim();
+    S.key = val;
+    saveCfg();
+    updateConn();
+  }, 250));
+
+  $('#eyeBtn').onclick = () => {
+    const inp = $('#apiKey');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
   };
 
-  $('#runBtn').onclick=runPipeline;
-  $('#prompt').addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();runPipeline();} });
-  $('#prompt').addEventListener('input',()=>{ const l=$('#prompt'); l.style.height='auto'; l.style.height=Math.min(l.scrollHeight,220)+'px'; updateTok(); });
+  $('#model').onchange = () => {
+    S.model = $('#model').value;
+    $('#customModel').style.display = S.model === 'custom' ? 'block' : 'none';
+    saveCfg();
+    updateConn();
+  };
 
-  $('#fileInput').onchange=e=>{ readFiles(Array.from(e.target.files)); e.target.value=''; };
+  $('#customModel').addEventListener('input', debounce(() => {
+    S.customModel = $('#customModel').value.trim();
+    saveCfg();
+    updateConn();
+  }, 250));
 
-  window.addEventListener('resize',debounce(buildNet,300));
-  buildNet(); updateConn(); showExamples();
+  $('#testBtn').onclick = testConnection;
+  $('#listModelsBtn').onclick = listModelsAction;
+  $('#helpKey').onclick = e => { e.preventDefault(); openModal('key'); };
+  $('#aboutBtn').onclick = () => openModal('about');
+  $('#modalClose').onclick = closeModal;
+  $('#modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
+  $('#themeBtn').onclick = toggleTheme;
+
+  $('#clearBtn').onclick = () => {
+    if (confirm('¿Deseas limpiar el ejercicio y los resultados actuales?')) {
+      $('#stageWrap').innerHTML = '';
+      $('#prompt').value = '';
+      S.files = [];
+      renderAtts();
+      showExamples();
+    }
+  };
+
+  $('#exampleBtn').onclick = showExamples;
+  $('#runBtn').onclick = runPipeline;
+
+  $('#prompt').addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      runPipeline();
+    }
+  });
+
+  $('#prompt').addEventListener('input', () => {
+    const el = $('#prompt');
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 220) + 'px';
+    const n = el.value.length;
+    $('#tokEst').textContent = n ? ('~' + Math.round(n / 3.5) + ' tokens aprox.') : '';
+  });
+
+  $('#fileInput').onchange = e => {
+    readFiles(Array.from(e.target.files));
+    e.target.value = '';
+  };
+
+  const pfp = $('#praxisFixPanel');
+  const pfpHead = $('.pfp-head');
+  const pfpToggle = $('#pfpToggle');
+  const togglePanel = () => {
+    pfp.classList.toggle('min');
+    pfpToggle.textContent = pfp.classList.contains('min') ? '+' : '—';
+  };
+  if (pfpHead) pfpHead.onclick = togglePanel;
+  $('#toggleDiagBtn').onclick = togglePanel;
+
+  $('#pfpTest').onclick = testConnection;
+  $('#pfpListModels').onclick = listModelsAction;
+  $('#pfpReload').onclick = () => location.reload();
+  $('#pfpClear').onclick = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    S.key = '';
+    $('#apiKey').value = '';
+    saveCfg();
+    updateConn();
+    setPanelStatus('warn', 'Clave local borrada.');
+    log('Clave borrada del almacenamiento local.');
+  };
+  $('#pfpCopy').onclick = () => {
+    const txt = $('#pfpLog').textContent || '';
+    navigator.clipboard.writeText(txt).then(() => toast('Log copiado.')).catch(() => toast('No se pudo copiar.'));
+  };
+
+  window.addEventListener('error', e => {
+    const m = 'ERROR JS: ' + (e.message || '') + ' @ ' + (e.filename || '') + ':' + (e.lineno || '');
+    log(m);
+    setPanelStatus('bad', 'Error JS detectado');
+  });
+  window.addEventListener('unhandledrejection', e => {
+    const reason = e && e.reason;
+    const m = 'PROMESA RECHAZADA: ' + ((reason && reason.message) || reason);
+    log(m);
+    setPanelStatus('bad', 'Promesa rechazada');
+  });
+
+  window.addEventListener('resize', debounce(buildNet, 300));
+  buildNet();
+  updateConn();
+  showExamples();
+
+  log('Praxis v6 listo.');
+  if (validKey(S.key)) {
+    fetchModels().then(m => log('Auto-detección de modelos exitosa: ' + m.slice(0, 5).join(', '))).catch(e => log('Nota al inicio: ' + e.message));
+  }
 }
-function updateConn(){
-  const p=$('#connPill'); const has=!!S.key;
-  p.className='pill '+(has?'ok':'warn');
-  $('#connTxt').textContent=has?('Listo · '+(S.model==='custom'?(S.customModel||'custom'):S.model)):'Falta API key';
-}
-function updateTok(){ const n=$('#prompt').value.length; $('#tokEst').textContent=n?('~'+Math.round(n/3.5)+' tokens aprox.)':''; }
 
-init();
+function syncChips() {
+  $$('#audChips .chip').forEach(c => c.classList.toggle('on', c.dataset.aud === S.audience));
+  $$('#depthChips .chip').forEach(c => c.classList.toggle('on', c.dataset.depth === S.depth));
+  $$('#toolChips .chip').forEach(c => c.classList.toggle('on', !!S.tools[c.dataset.tool]));
+  updateAudHint();
+}
+
+window.addEventListener('DOMContentLoaded', init);
+
 </script>
 </body>
 </html>
