@@ -2,6 +2,13 @@
 
 Suite completa de orquestación cognitiva matemática y exportación a Microsoft Word (.docx y .doc con ecuaciones nativas 2D).
 
+## Seguridad importante
+
+- No se incluye ninguna API key ni secreto en este repositorio.
+- La aplicación debe utilizar tu propia clave de Google Gemini y pegarla manualmente en la interfaz.
+- La clave se almacena solo en el navegador del usuario (localStorage) y se recomienda borrarla al terminar la sesión.
+- Si se detecta una clave antigua, se elimina al iniciar la app para evitar conservar credenciales en el equipo.
+
 ## 1. Requisitos y Entorno Virtual (.venv)
 Ya tienes instalado en tu entorno:
 - Python 3
@@ -53,3 +60,10 @@ pandoc "Investigaci_n_rigurosa_del_sistema_din_mico_lineal.md" -o "Resultado.doc
 - `Investigaci_n_rigurosa_del_sistema_din_mico_lineal.docx`: Word nativo con ecuaciones OMML sin duplicaciones.
 - `Investigaci_n_rigurosa_del_sistema_din_mico_lineal_MathML.doc`: Word con MathML editable 2D.
 - `Investigaci_n_rigurosa_del_sistema_din_mico_lineal.md`: Markdown canónico estándar.
+
+## 5. Uso de la API key de Gemini
+
+1. Genera tu clave en Google AI Studio.
+2. Pégala en el campo de la interfaz de la aplicación.
+3. Si quieres borrarla, usa el botón de limpiar o limpia el almacenamiento local del navegador.
+4. Nunca compartas la clave en el repositorio ni en archivos de texto visibles.
